@@ -45,7 +45,7 @@
     }
     .dot{
       width:10px; height:10px; border-radius:999px;
-      background:#2f7d4d; /* 轻微绿色点缀，可改 */
+      background:#2f7d4d;
     }
     nav{display:flex; gap:18px; color:var(--muted); font-weight:600; font-size:14px}
     nav a:hover{color:var(--text)}
@@ -62,6 +62,7 @@
       border:1px solid var(--line);
       background:#fff;
       font-weight:700; font-size:14px;
+      cursor:pointer;
     }
     .btn.primary{
       background:#111; color:#fff; border-color:#111;
@@ -91,6 +92,7 @@
       overflow:hidden;
       background:#fff;
       transition:transform .15s ease, box-shadow .15s ease;
+      cursor:pointer; /* 关键：提示可点击 */
     }
     .card:hover{
       transform:translateY(-2px);
@@ -146,6 +148,59 @@
       .card{grid-column:span 12}
       nav{gap:12px}
     }
+
+    /* ===== Lightbox (one-file next/prev) ===== */
+    .lightbox{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.88);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:999;
+      padding:18px;
+    }
+    .lightbox.active{ display:flex; }
+    .lightbox img{
+      max-width:92vw;
+      max-height:88vh;
+      border-radius:14px;
+      background:#111;
+      display:block;
+    }
+    .lb-ui{
+      position:absolute;
+      top:14px;
+      left:14px;
+      right:14px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      color:#fff;
+      font-weight:700;
+      gap:10px;
+    }
+    .lb-left, .lb-right{display:flex; gap:10px; align-items:center;}
+    .lb-count{color:rgba(255,255,255,.8); font-weight:600; font-size:13px;}
+    .lb-btn{
+      border:1px solid rgba(255,255,255,.25);
+      background:rgba(255,255,255,.10);
+      color:#fff;
+      padding:8px 14px;
+      border-radius:999px;
+      cursor:pointer;
+      font-size:14px;
+      font-weight:700;
+    }
+    .lb-btn:hover{ background:rgba(255,255,255,.18); }
+    .lb-btn:disabled{ opacity:.45; cursor:not-allowed; }
+
+    .lb-nav{
+      position:absolute;
+      bottom:18px;
+      display:flex;
+      gap:12px;
+    }
   </style>
 </head>
 
@@ -177,7 +232,6 @@
       </p>
       <div class="cta">
         <a class="btn primary" href="#work">View selected work</a>
-        <!-- 如果你以后上传简历：把 href 改成你的 PDF 文件名，比如 resume.pdf -->
         <a class="btn" href="#contact">Get in touch</a>
       </div>
       <div class="divider"></div>
@@ -190,156 +244,133 @@
         <p>Click a project to view the full image.</p>
       </div>
 
+      <!-- ✅ 注意：这里的 card 不用 href 了（避免直接跳到 jpg） -->
       <div class="grid">
-        <!-- 你只要改下面每张图的：src + 标题 + 类别 + 简短描述 -->
-
-        <a class="card" href="portfolio.jpg" target="_blank" rel="noopener">
-          <div class="thumb simple-carousel"><img src="portfolio.jpg" class="slide active" alt="Project 1">
-            <button class="next-btn">Next</button></div>
+        <div class="card" data-index="0">
+          <div class="thumb"><img src="portfolio.jpg" alt="Project 1"></div>
           <div class="meta">
             <div class="tag">Branding</div>
             <div class="title">Brand Identity System</div>
             <div class="desc">Logo, stationery, and visual guidelines.</div>
           </div>
-        </a>
+        </div>
 
-        <a class="card" href="portfolio2.jpg" target="_blank" rel="noopener">
+        <div class="card" data-index="1">
           <div class="thumb"><img src="portfolio2.jpg" alt="Project 2"></div>
           <div class="meta">
             <div class="tag">Print</div>
             <div class="title">Brochure / Trifold</div>
             <div class="desc">Layout, typography, and print-ready setup.</div>
           </div>
-        </a>
+        </div>
 
-        <a class="card" href="portfolio3.jpg" target="_blank" rel="noopener">
+        <div class="card" data-index="2">
           <div class="thumb"><img src="portfolio3.jpg" alt="Project 3"></div>
           <div class="meta">
             <div class="tag">Editorial</div>
             <div class="title">Book / Poetry Layout</div>
             <div class="desc">Grid system, styles, and pagination.</div>
           </div>
-        </a>
+        </div>
 
-        <a class="card" href="portfolio4.jpg" target="_blank" rel="noopener">
+        <div class="card" data-index="3">
           <div class="thumb"><img src="portfolio4.jpg" alt="Project 4"></div>
           <div class="meta">
             <div class="tag">Poster</div>
             <div class="title">Event Poster</div>
             <div class="desc">Composition, hierarchy, and concept.</div>
           </div>
-        </a>
+        </div>
 
-        <a class="card" href="portfolio5.jpg" target="_blank" rel="noopener">
+        <div class="card" data-index="4">
           <div class="thumb"><img src="portfolio5.jpg" alt="Project 5"></div>
           <div class="meta">
             <div class="tag">Packaging</div>
             <div class="title">Packaging Mockup</div>
             <div class="desc">Label design and brand application.</div>
           </div>
-        </a>
+        </div>
 
-        <a class="card" href="portfolio6.jpg" target="_blank" rel="noopener">
+        <div class="card" data-index="5">
           <div class="thumb"><img src="portfolio6.jpg" alt="Project 6"></div>
           <div class="meta">
             <div class="tag">Digital</div>
             <div class="title">Web / Social Assets</div>
             <div class="desc">Responsive visuals and content system.</div>
           </div>
-        </a>
+        </div>
 
-        <a class="card" href="portfolio6.jpg" target="_blank" rel="noopener">
-          <div class="thumb"><img src="portfolio6.jpg" alt="Project 6"></div>
-          <div class="meta">
-            <div class="tag">Digital</div>
-            <div class="title">Web / Social Assets</div>
-            <div class="desc">Responsive visuals and content system.</div>
-          </div>
-        </a>
-
-        <a class="card" href="portfolio6.jpg" target="_blank" rel="noopener">
-          <div class="thumb"><img src="portfolio6.jpg" alt="Project 6"></div>
-          <div class="meta">
-            <div class="tag">Digital</div>
-            <div class="title">Web / Social Assets</div>
-            <div class="desc">Responsive visuals and content system.</div>
-          </div>
-        </a>
-
-        <!-- 你还有更多图片的话：把下面复制粘贴继续加 -->
-        <a class="card" href="portfolio7.jpg" target="_blank" rel="noopener">
+        <div class="card" data-index="6">
           <div class="thumb"><img src="portfolio7.jpg" alt="Project 7"></div>
           <div class="meta">
             <div class="tag">Branding</div>
             <div class="title">Brand Applications</div>
             <div class="desc">Real-world mockups and variations.</div>
           </div>
-        </a>
+        </div>
 
-        <a class="card" href="portfolio8.jpg" target="_blank" rel="noopener">
+        <div class="card" data-index="7">
           <div class="thumb"><img src="portfolio8.jpg" alt="Project 8"></div>
           <div class="meta">
             <div class="tag">Print</div>
             <div class="title">Calendar / Collateral</div>
             <div class="desc">Production details and consistency.</div>
           </div>
-        </a>
+        </div>
 
-        <a class="card" href="portfolio9.jpg" target="_blank" rel="noopener">
+        <div class="card" data-index="8">
           <div class="thumb"><img src="portfolio9.jpg" alt="Project 9"></div>
           <div class="meta">
             <div class="tag">Layout</div>
             <div class="title">Marketing Layout</div>
             <div class="desc">Hierarchy and clean spacing.</div>
           </div>
-        </a>
+        </div>
 
- <a class="card" href="portfolio10.jpg" target="_blank" rel="noopener">
-          <div class="thumb"><img src="portfolio10.jpg" alt="Project 10”></div>
+        <div class="card" data-index="9">
+          <div class="thumb"><img src="portfolio10.jpg" alt="Project 10"></div>
           <div class="meta">
             <div class="tag">Print</div>
             <div class="title">Calendar / Collateral</div>
             <div class="desc">Production details and consistency.</div>
           </div>
-        </a>
+        </div>
 
- <a class="card" href="portfolio11.jpg" target="_blank" rel="noopener">
-          <div class="thumb"><img src="portfolio11.jpg" alt="Project 11”></div>
+        <div class="card" data-index="10">
+          <div class="thumb"><img src="portfolio11.jpg" alt="Project 11"></div>
           <div class="meta">
             <div class="tag">Print</div>
             <div class="title">Calendar / Collateral</div>
             <div class="desc">Production details and consistency.</div>
           </div>
-        </a>
+        </div>
 
- <a class="card" href="portfolio12.jpg" target="_blank" rel="noopener">
-          <div class="thumb"><img src="portfolio12.jpg" alt="Project 1”2></div>
+        <div class="card" data-index="11">
+          <div class="thumb"><img src="portfolio12.jpg" alt="Project 12"></div>
           <div class="meta">
             <div class="tag">Print</div>
             <div class="title">Calendar / Collateral</div>
             <div class="desc">Production details and consistency.</div>
           </div>
-        </a>
+        </div>
 
- <a class="card" href="portfolio13.jpg" target="_blank" rel="noopener">
-          <div class="thumb"><img src="portfolio13.jpg" alt="Project 13”></div>
+        <div class="card" data-index="12">
+          <div class="thumb"><img src="portfolio13.jpg" alt="Project 13"></div>
           <div class="meta">
             <div class="tag">Print</div>
             <div class="title">Calendar / Collateral</div>
             <div class="desc">Production details and consistency.</div>
           </div>
-        </a>
+        </div>
 
- <a class="card" href="portfolio14.jpg" target="_blank" rel="noopener">
-          <div class="thumb"><img src="portfolio14.jpg" alt="Project 14”></div>
+        <div class="card" data-index="13">
+          <div class="thumb"><img src="portfolio14.jpg" alt="Project 14"></div>
           <div class="meta">
             <div class="tag">Print</div>
             <div class="title">Calendar / Collateral</div>
             <div class="desc">Production details and consistency.</div>
           </div>
-        </a>
-
-
+        </div>
       </div>
     </section>
 
@@ -362,9 +393,7 @@
 
       <div class="box" id="contact">
         <h3>Contact</h3>
-        <p>
-          Email is the best way to reach me.
-        </p>
+        <p>Email is the best way to reach me.</p>
         <ul class="list">
           <li>Email: <a href="mailto:yourname@email.com">yourname@email.com</a></li>
           <li>LinkedIn: <a href="https://www.linkedin.com/" target="_blank" rel="noopener">linkedin.com/in/your-link</a></li>
@@ -381,8 +410,102 @@
     </footer>
   </main>
 
+  <!-- ✅ Lightbox (one-file viewer) -->
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <div class="lb-ui">
+      <div class="lb-left">
+        <button class="lb-btn" id="lb-close" type="button">✕ Close</button>
+        <span class="lb-count" id="lb-count"></span>
+      </div>
+      <div class="lb-right"></div>
+    </div>
+
+    <img id="lb-img" src="" alt="Large view" />
+
+    <div class="lb-nav">
+      <button class="lb-btn" id="lb-prev" type="button">← Prev</button>
+      <button class="lb-btn" id="lb-next" type="button">Next →</button>
+    </div>
+  </div>
+
   <script>
+    // 年份
     document.getElementById('y').textContent = new Date().getFullYear();
+
+    // ✅ 大图顺序（下一项就是这个顺序）
+    const images = [
+      "portfolio.jpg",
+      "portfolio2.jpg",
+      "portfolio3.jpg",
+      "portfolio4.jpg",
+      "portfolio5.jpg",
+      "portfolio6.jpg",
+      "portfolio7.jpg",
+      "portfolio8.jpg",
+      "portfolio9.jpg",
+      "portfolio10.jpg",
+      "portfolio11.jpg",
+      "portfolio12.jpg",
+      "portfolio13.jpg",
+      "portfolio14.jpg"
+    ];
+
+    const lightbox = document.getElementById("lightbox");
+    const lbImg = document.getElementById("lb-img");
+    const lbCount = document.getElementById("lb-count");
+    const prevBtn = document.getElementById("lb-prev");
+    const nextBtn = document.getElementById("lb-next");
+    const closeBtn = document.getElementById("lb-close");
+
+    let current = 0;
+
+    function render(){
+      lbImg.src = images[current];
+      lbCount.textContent = `${current + 1} / ${images.length}`;
+      prevBtn.disabled = (current === 0);
+      nextBtn.disabled = (current === images.length - 1);
+    }
+
+    function openLB(i){
+      current = Math.max(0, Math.min(images.length - 1, i));
+      lightbox.classList.add("active");
+      lightbox.setAttribute("aria-hidden", "false");
+      render();
+    }
+
+    function closeLB(){
+      lightbox.classList.remove("active");
+      lightbox.setAttribute("aria-hidden", "true");
+      lbImg.src = "";
+    }
+
+    // 打开
+    document.querySelectorAll(".card[data-index]").forEach(card=>{
+      card.addEventListener("click", (e)=>{
+        e.preventDefault();
+        openLB(parseInt(card.dataset.index, 10));
+      });
+    });
+
+    // 下一项 / 上一项
+    nextBtn.addEventListener("click", ()=>{ if(current < images.length - 1){ current++; render(); }});
+    prevBtn.addEventListener("click", ()=>{ if(current > 0){ current--; render(); }});
+
+    // 关闭
+    closeBtn.addEventListener("click", closeLB);
+
+    // 点黑色背景关闭
+    lightbox.addEventListener("click", (e)=>{
+      if(e.target === lightbox) closeLB();
+    });
+
+    // 键盘
+    window.addEventListener("keydown", (e)=>{
+      if(!lightbox.classList.contains("active")) return;
+      if(e.key === "ArrowRight") nextBtn.click();
+      if(e.key === "ArrowLeft") prevBtn.click();
+      if(e.key === "Escape") closeLB();
+    });
   </script>
 </body>
 </html>
