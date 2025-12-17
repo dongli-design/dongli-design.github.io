@@ -151,23 +151,45 @@
 
     /* ===== Lightbox (one-file next/prev) ===== */
     .lightbox{
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.88);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index:999;
-      padding:18px;
-    }
-    .lightbox.active{ display:flex; }
-    .lightbox img{
-      max-width:92vw;
-      max-height:88vh;
-      border-radius:14px;
-      background:#111;
-      display:block;
-    }
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.0);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+  padding:18px;
+
+  opacity:0;
+  transition:opacity .22s ease, background .22s ease;
+}
+.lightbox.active{
+  display:flex;
+  opacity:1;
+  background:rgba(0,0,0,.88);
+}
+
+.lightbox img{
+  max-width:92vw;
+  max-height:88vh;
+  border-radius:14px;
+  background:#111;
+  display:block;
+
+  opacity:0;
+  transform:scale(.985);
+  transition:opacity .22s ease, transform .22s ease;
+}
+.lightbox.active img{
+  opacity:1;
+  transform:scale(1);
+}
+
+/* 切换图片时的淡入 */
+.lightbox img.is-fading{
+  opacity:0;
+  transform:scale(.99);}
+    
     .lb-ui{
       position:absolute;
       top:14px;
@@ -459,12 +481,23 @@
 
     let current = 0;
 
-    function render(){
-      lbImg.src = images[current];
-      lbCount.textContent = `${current + 1} / ${images.length}`;
-      prevBtn.disabled = (current === 0);
-      nextBtn.disabled = (current === images.length - 1);
-    }
+   function render(){
+  // 先让图片淡出一下
+  lbImg.classList.add("is-fading");
+
+  // 换图
+  lbImg.src = images[current];
+  lbCount.textContent = `${current + 1} / ${images.length}`;
+  prevBtn.disabled = (current === 0);
+  nextBtn.disabled = (current === images.length - 1);
+
+  // 图片加载好再淡入（避免闪）
+  lbImg.onload = () => {
+    requestAnimationFrame(() => {
+      lbImg.classList.remove("is-fading");
+    });
+  };
+}
 
     function openLB(i){
       current = Math.max(0, Math.min(images.length - 1, i));
