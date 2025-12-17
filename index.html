@@ -57,10 +57,7 @@
   border-radius:28px;
   overflow:hidden;
    /* 主绿色 + 叶子 pattern 叠加 */
-  background:
-    url("leaf-pattern.svg") center / 1200px no-repeat,
-    linear-gradient(0deg, #1f9d62, #1f9d62);
-
+  background:#1f9d62;
   color: #fff;
 }
 
@@ -126,18 +123,7 @@
   transform:translateY(-1px);
 }
 
-/* 右侧叶子纹理（更接近你封面） */
-.heroArt{
-  position:relative;
-  min-height:320px;
-  border-radius:22px;
-  background:
-    radial-gradient(900px 420px at 40% 45%, rgba(255,255,255,.18), rgba(255,255,255,0) 55%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='800' viewBox='0 0 1200 800'%3E%3Cg fill='none' stroke='white' stroke-opacity='0.18' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M900 120 C820 210,760 280,700 340 C640 400,600 450,550 500'/%3E%3Cpath d='M760 260 C720 245,695 220,690 195 C685 170,705 150,730 155 C760 160,790 205,760 260 Z'/%3E%3Cpath d='M700 350 C665 335,645 310,645 285 C645 255,675 240,705 255 C735 270,740 320,700 350 Z'/%3E%3Cpath d='M620 440 C585 430,565 405,570 380 C575 350,610 340,635 360 C665 385,660 430,620 440 Z'/%3E%3Cpath d='M560 505 C530 498,510 478,515 455 C520 425,555 418,580 435 C610 458,605 495,560 505 Z'/%3E%3Cpath d='M780 210 C860 250,930 310,990 380 C1040 440,1080 500,1120 580'/%3E%3C/g%3E%3C/svg%3E");
-  background-repeat:no-repeat;
-  background-position:right center;
-  background-size:cover;
-}
+
 
 /* 分割线 */
 .hero .divider{
@@ -351,8 +337,7 @@
       </div>
     </div>
 
-    <!-- 右侧叶子装饰（纯视觉） -->
-    <div class="heroArt" aria-hidden="true"></div>
+   
   </div>
 
   <div class="divider"></div>
