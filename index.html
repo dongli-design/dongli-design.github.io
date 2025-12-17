@@ -50,101 +50,105 @@
     nav{display:flex; gap:18px; color:var(--muted); font-weight:600; font-size:14px}
     nav a:hover{color:var(--text)}
 
-    /* Hero */
+   /* ===== HERO (Green cover style) ===== */
 .hero{
-  padding:96px 0 72px;
-  background:#1f9d62;
-  color:#ffffff;
-}
-
-.kicker{
-  color:rgba(255,255,255,.85);
-  font-weight:600;
-  font-size:14px;
-  margin:0 0 12px;
-}
-
-/* Hero */
-.hero{
-  position: relative;
-  padding:120px 0 96px; /* 上下更有“封面感” */
-  background:#1f9d62;
-  color:#ffffff;
-  overflow:hidden;
-}
-
-/* 叶子线稿纹理（CSS 背景） */
-.hero::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background-image:
-    url("data:image/svg+xml,%3Csvg width='600' height='600' viewBox='0 0 600 600' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='white' stroke-opacity='0.08' stroke-width='1'%3E%3Cpath d='M80 120 C160 60, 260 80, 300 160 C340 240, 420 260, 480 200'/%3E%3Cpath d='M120 260 C180 220, 260 240, 300 300 C340 360, 420 380, 460 340'/%3E%3Cpath d='M100 420 C180 380, 260 400, 300 460 C340 520, 420 540, 500 480'/%3E%3C/g%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size:600px 600px;
-  pointer-events:none;
-}
-
-/* Hero 内容在纹理之上 */
-.hero > *{
   position:relative;
-  z-index:1;
+  margin-top:18px;
+  border-radius:28px;
+  overflow:hidden;
+  background:#1f9d62; /* 主绿色 */
+  color:#fff;
 }
 
-.kicker{
+/* 内部布局 */
+.heroInner{
+  display:grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap:32px;
+  padding:80px 64px 64px;
+  position:relative;
+}
+
+/* 左侧文字 */
+.hero .kicker{
   color:rgba(255,255,255,.85);
-  font-weight:600;
+  font-weight:700;
   font-size:14px;
   margin:0 0 14px;
 }
 
 .hero h1{
   margin:0 0 16px;
-  font-size:46px;
-  line-height:1.12;
-  letter-spacing:-.6px;
-  color:#ffffff;
+  font-size:52px;
+  line-height:1.05;
+  letter-spacing:-0.6px;
+  max-width:22ch;
 }
 
-.sub{
-  margin:0 0 26px;
+.hero .sub{
+  margin:0 0 28px;
+  font-size:16px;
   color:rgba(255,255,255,.92);
   max-width:60ch;
 }
 
-.cta{
+/* 按钮 */
+.hero .cta{
   display:flex;
   gap:14px;
   flex-wrap:wrap;
 }
 
-.btn{
+.hero .btn{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  padding:13px 20px;
+  padding:12px 20px;
   border-radius:999px;
-  border:1px solid rgba(255,255,255,.55);
+  border:1px solid rgba(255,255,255,.6);
   background:transparent;
-  color:#ffffff;
-  font-weight:700;
+  color:#fff;
+  font-weight:800;
   font-size:14px;
-  cursor:pointer;
 }
 
-.btn.primary{
-  background:#ffffff;
+.hero .btn.primary{
+  background:#fff;
   color:#1f9d62;
-  border-color:#ffffff;
+  border-color:#fff;
 }
 
-.btn:hover{
+.hero .btn:hover{
   transform:translateY(-1px);
 }
 
-.divider{
-  border-top:1px solid rgba(255,255,255,.25);
-  margin:40px 0 0;
+/* 右侧叶子纹理（更接近你封面） */
+.heroArt{
+  position:relative;
+  min-height:320px;
+  border-radius:22px;
+  background:
+    radial-gradient(900px 420px at 40% 45%, rgba(255,255,255,.18), rgba(255,255,255,0) 55%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='800' viewBox='0 0 1200 800'%3E%3Cg fill='none' stroke='white' stroke-opacity='0.18' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M900 120 C820 210,760 280,700 340 C640 400,600 450,550 500'/%3E%3Cpath d='M760 260 C720 245,695 220,690 195 C685 170,705 150,730 155 C760 160,790 205,760 260 Z'/%3E%3Cpath d='M700 350 C665 335,645 310,645 285 C645 255,675 240,705 255 C735 270,740 320,700 350 Z'/%3E%3Cpath d='M620 440 C585 430,565 405,570 380 C575 350,610 340,635 360 C665 385,660 430,620 440 Z'/%3E%3Cpath d='M560 505 C530 498,510 478,515 455 C520 425,555 418,580 435 C610 458,605 495,560 505 Z'/%3E%3Cpath d='M780 210 C860 250,930 310,990 380 C1040 440,1080 500,1120 580'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right center;
+  background-size:cover;
+}
+
+/* 分割线 */
+.hero .divider{
+  border-top:1px solid rgba(255,255,255,.35);
+  margin:0;
+}
+
+/* 响应式 */
+@media (max-width: 980px){
+  .heroInner{
+    grid-template-columns:1fr;
+    padding:64px 36px 48px;
+  }
+  .heroArt{min-height:220px}
+  .hero h1{font-size:40px}
 }
 
 
@@ -325,17 +329,31 @@
   <main class="wrap">
     <!-- Hero -->
     <section class="hero">
+  <div class="heroInner">
+    <!-- 左侧文字 -->
+    <div class="heroCopy">
       <p class="kicker">Graphic Design Portfolio</p>
+
       <h1>Branding, print, and layout projects.</h1>
+
       <p class="sub">
-        I build clean visual systems and production-ready designs across brand identity, editorial layout, and marketing materials.
+        I build clean visual systems and production-ready designs across brand identity,
+        editorial layout, and marketing materials.
       </p>
+
       <div class="cta">
         <a class="btn primary" href="#work">View selected work</a>
         <a class="btn" href="#contact">Get in touch</a>
       </div>
-      <div class="divider"></div>
-    </section>
+    </div>
+
+    <!-- 右侧叶子装饰（纯视觉） -->
+    <div class="heroArt" aria-hidden="true"></div>
+  </div>
+
+  <div class="divider"></div>
+</section>
+
 
     <!-- Work -->
     <section id="work">
