@@ -64,23 +64,57 @@
   margin:0 0 12px;
 }
 
-.hero h1{
+/* Hero */
+.hero{
+  position: relative;
+  padding:120px 0 96px; /* 上下更有“封面感” */
+  background:#1f9d62;
+  color:#ffffff;
+  overflow:hidden;
+}
+
+/* 叶子线稿纹理（CSS 背景） */
+.hero::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg width='600' height='600' viewBox='0 0 600 600' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='white' stroke-opacity='0.08' stroke-width='1'%3E%3Cpath d='M80 120 C160 60, 260 80, 300 160 C340 240, 420 260, 480 200'/%3E%3Cpath d='M120 260 C180 220, 260 240, 300 300 C340 360, 420 380, 460 340'/%3E%3Cpath d='M100 420 C180 380, 260 400, 300 460 C340 520, 420 540, 500 480'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size:600px 600px;
+  pointer-events:none;
+}
+
+/* Hero 内容在纹理之上 */
+.hero > *{
+  position:relative;
+  z-index:1;
+}
+
+.kicker{
+  color:rgba(255,255,255,.85);
+  font-weight:600;
+  font-size:14px;
   margin:0 0 14px;
-  font-size:44px;
-  line-height:1.15;
+}
+
+.hero h1{
+  margin:0 0 16px;
+  font-size:46px;
+  line-height:1.12;
   letter-spacing:-.6px;
   color:#ffffff;
 }
 
 .sub{
-  margin:0 0 22px;
-  color:rgba(255,255,255,.9);
+  margin:0 0 26px;
+  color:rgba(255,255,255,.92);
   max-width:60ch;
 }
 
 .cta{
   display:flex;
-  gap:12px;
+  gap:14px;
   flex-wrap:wrap;
 }
 
@@ -88,9 +122,9 @@
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  padding:12px 18px;
+  padding:13px 20px;
   border-radius:999px;
-  border:1px solid rgba(255,255,255,.5);
+  border:1px solid rgba(255,255,255,.55);
   background:transparent;
   color:#ffffff;
   font-weight:700;
@@ -110,8 +144,9 @@
 
 .divider{
   border-top:1px solid rgba(255,255,255,.25);
-  margin:28px 0 0;
+  margin:40px 0 0;
 }
+
 
     /* Section headings */
     .sectionTitle{
