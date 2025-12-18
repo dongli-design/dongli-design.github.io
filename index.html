@@ -50,97 +50,75 @@
     nav{display:flex; gap:18px; color:var(--muted); font-weight:600; font-size:14px}
     nav a:hover{color:var(--text)}
 
-   /* ===== HERO (Green cover style) ===== */
-.hero{
-  position:relative;
-  margin-top:18px;
-  border-radius:28px;
-  overflow:hidden;
-   /* 主绿色 + 叶子 pattern 叠加 */
-  background:#1f9d62;
-  color: #fff;
-}
-
-/* 内部布局 */
-.heroInner{
-  display:grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap:32px;
-  padding:80px 64px 64px;
-  position:relative;
-}
-
-/* 左侧文字 */
-.hero .kicker{
-  color:rgba(255,255,255,.85);
-  font-weight:700;
-  font-size:14px;
-  margin:0 0 14px;
-}
-
-.hero h1{
-  margin:0 0 16px;
-  font-size:52px;
-  line-height:1.05;
-  letter-spacing:-0.6px;
-  max-width:22ch;
-}
-
-.hero .sub{
-  margin:0 0 28px;
-  font-size:16px;
-  color:rgba(255,255,255,.92);
-  max-width:60ch;
-}
-
-/* 按钮 */
-.hero .cta{
-  display:flex;
-  gap:14px;
-  flex-wrap:wrap;
-}
-
-.hero .btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding:12px 20px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.6);
-  background:transparent;
-  color:#fff;
-  font-weight:800;
-  font-size:14px;
-}
-
-.hero .btn.primary{
-  background:#fff;
-  color:#1f9d62;
-  border-color:#fff;
-}
-
-.hero .btn:hover{
-  transform:translateY(-1px);
-}
-
-
-
-/* 分割线 */
-.hero .divider{
-  border-top:1px solid rgba(255,255,255,.35);
-  margin:0;
-}
-
-/* 响应式 */
-@media (max-width: 980px){
-  .heroInner{
-    grid-template-columns:1fr;
-    padding:64px 36px 48px;
-  }
-  .heroArt{min-height:220px}
-  .hero h1{font-size:40px}
-}
-
+    /* ===== HERO ===== */
+    .hero{
+      position:relative;
+      margin-top:18px;
+      border-radius:28px;
+      overflow:hidden;
+      background:#1f9d62;
+      color:#fff;
+    }
+    .heroInner{
+      display:grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap:32px;
+      padding:80px 64px 64px;
+      position:relative;
+    }
+    .hero .kicker{
+      color:rgba(255,255,255,.85);
+      font-weight:700;
+      font-size:14px;
+      margin:0 0 14px;
+    }
+    .hero h1{
+      margin:0 0 16px;
+      font-size:52px;
+      line-height:1.05;
+      letter-spacing:-0.6px;
+      max-width:22ch;
+    }
+    .hero .sub{
+      margin:0 0 28px;
+      font-size:16px;
+      color:rgba(255,255,255,.92);
+      max-width:60ch;
+    }
+    .hero .cta{
+      display:flex;
+      gap:14px;
+      flex-wrap:wrap;
+    }
+    .hero .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:12px 20px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.6);
+      background:transparent;
+      color:#fff;
+      font-weight:800;
+      font-size:14px;
+    }
+    .hero .btn.primary{
+      background:#fff;
+      color:#1f9d62;
+      border-color:#fff;
+    }
+    .hero .btn:hover{ transform:translateY(-1px); }
+    .hero .divider{
+      border-top:1px solid rgba(255,255,255,.35);
+      margin:0;
+    }
+    @media (max-width: 980px){
+      .heroInner{
+        grid-template-columns:1fr;
+        padding:64px 36px 48px;
+      }
+      .hero h1{font-size:40px}
+    }
 
     /* Section headings */
     .sectionTitle{
@@ -164,7 +142,7 @@
       overflow:hidden;
       background:#fff;
       transition:transform .15s ease, box-shadow .15s ease;
-      cursor:pointer; /* 关键：提示可点击 */
+      cursor:pointer;
     }
     .card:hover{
       transform:translateY(-2px);
@@ -223,45 +201,49 @@
 
     /* ===== Lightbox (one-file next/prev) ===== */
     .lightbox{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.0);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:999;
-  padding:18px;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.0);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:999;
+      padding:18px;
 
-  opacity:0;
-  transition:opacity .22s ease, background .22s ease;
-}
-.lightbox.active{
-  display:flex;
-  opacity:1;
-  background:rgba(0,0,0,.88);
-}
+      opacity:0;
+      transition:opacity .22s ease, background .22s ease;
 
-.lightbox img{
-  max-width:92vw;
-  max-height:88vh;
-  border-radius:14px;
-  background:#111;
-  display:block;
+      /* ✅ 允许我们接管滑动手势 */
+      touch-action:none;
+    }
+    .lightbox.active{
+      display:flex;
+      opacity:1;
+      background:rgba(0,0,0,.88);
+    }
 
-  opacity:0;
-  transform:scale(.985);
-  transition:opacity .22s ease, transform .22s ease;
-}
-.lightbox.active img{
-  opacity:1;
-  transform:scale(1);
-}
+    .lightbox img{
+      max-width:92vw;
+      max-height:88vh;
+      border-radius:14px;
+      background:#111;
+      display:block;
 
-/* 切换图片时的淡入 */
-.lightbox img.is-fading{
-  opacity:0;
-  transform:scale(.99);}
-    
+      opacity:0;
+      transform:scale(.985);
+      transition:opacity .22s ease, transform .22s ease;
+    }
+    .lightbox.active img{
+      opacity:1;
+      transform:scale(1);
+    }
+
+    /* 切换图片时淡入 */
+    .lightbox img.is-fading{
+      opacity:0;
+      transform:scale(.99);
+    }
+
     .lb-ui{
       position:absolute;
       top:14px;
@@ -295,6 +277,16 @@
       display:flex;
       gap:12px;
     }
+
+    /* ✅ 横屏优化（不能强制“自动旋转”，但能让横屏更舒服） */
+    @media (orientation: landscape){
+      .lightbox img{
+        max-width:90vw;
+        max-height:82vh;
+      }
+      .lb-nav{ bottom:12px; }
+      .lb-ui{ top:10px; }
+    }
   </style>
 </head>
 
@@ -319,30 +311,22 @@
   <main class="wrap">
     <!-- Hero -->
     <section class="hero">
-  <div class="heroInner">
-    <!-- 左侧文字 -->
-    <div class="heroCopy">
-      <p class="kicker">Graphic Design Portfolio</p>
-
-      <h1>Branding, print, and layout projects.</h1>
-
-      <p class="sub">
-        I build clean visual systems and production-ready designs across brand identity,
-        editorial layout, and marketing materials.
-      </p>
-
-      <div class="cta">
-        <a class="btn primary" href="#work">View selected work</a>
-        <a class="btn" href="#contact">Get in touch</a>
+      <div class="heroInner">
+        <div class="heroCopy">
+          <p class="kicker">Graphic Design Portfolio</p>
+          <h1>Branding, print, and layout projects.</h1>
+          <p class="sub">
+            I build clean visual systems and production-ready designs across brand identity,
+            editorial layout, and marketing materials.
+          </p>
+          <div class="cta">
+            <a class="btn primary" href="#work">View selected work</a>
+            <a class="btn" href="#contact">Get in touch</a>
+          </div>
+        </div>
       </div>
-    </div>
-
-   
-  </div>
-
-  <div class="divider"></div>
-</section>
-
+      <div class="divider"></div>
+    </section>
 
     <!-- Work -->
     <section id="work">
@@ -351,7 +335,6 @@
         <p>Click a project to view the full image.</p>
       </div>
 
-      <!-- ✅ 注意：这里的 card 不用 href 了（避免直接跳到 jpg） -->
       <div class="grid">
         <div class="card" data-index="0">
           <div class="thumb"><img src="portfolio.jpg" alt="Project 1"></div>
@@ -513,7 +496,7 @@
     </footer>
   </main>
 
-  <!-- ✅ Lightbox (one-file viewer) -->
+  <!-- Lightbox -->
   <div class="lightbox" id="lightbox" aria-hidden="true">
     <div class="lb-ui">
       <div class="lb-left">
@@ -535,7 +518,7 @@
     // 年份
     document.getElementById('y').textContent = new Date().getFullYear();
 
-    // ✅ 大图顺序（下一项就是这个顺序）
+    // 大图顺序
     const images = [
       "portfolio.jpg",
       "portfolio2.jpg",
@@ -562,23 +545,19 @@
 
     let current = 0;
 
-   function render(){
-  // 先让图片淡出一下
-  lbImg.classList.add("is-fading");
+    function render(){
+      lbImg.classList.add("is-fading");
+      lbImg.src = images[current];
+      lbCount.textContent = `${current + 1} / ${images.length}`;
+      prevBtn.disabled = (current === 0);
+      nextBtn.disabled = (current === images.length - 1);
 
-  // 换图
-  lbImg.src = images[current];
-  lbCount.textContent = `${current + 1} / ${images.length}`;
-  prevBtn.disabled = (current === 0);
-  nextBtn.disabled = (current === images.length - 1);
-
-  // 图片加载好再淡入（避免闪）
-  lbImg.onload = () => {
-    requestAnimationFrame(() => {
-      lbImg.classList.remove("is-fading");
-    });
-  };
-}
+      lbImg.onload = () => {
+        requestAnimationFrame(() => {
+          lbImg.classList.remove("is-fading");
+        });
+      };
+    }
 
     function openLB(i){
       current = Math.max(0, Math.min(images.length - 1, i));
@@ -620,6 +599,66 @@
       if(e.key === "ArrowLeft") prevBtn.click();
       if(e.key === "Escape") closeLB();
     });
+
+    /* =========================
+       ✅ Touch Gestures (Mobile)
+       - Swipe left/right: prev/next
+       - Swipe down: close
+    ========================== */
+    let startX = 0, startY = 0;
+    let dx = 0, dy = 0;
+    let tracking = false;
+
+    const SWIPE_X = 45;   // 横向阈值
+    const SWIPE_Y = 70;   // 下滑关闭阈值
+
+    function onTouchStart(e){
+      if(!lightbox.classList.contains("active")) return;
+      const t = e.touches[0];
+      startX = t.clientX;
+      startY = t.clientY;
+      dx = 0; dy = 0;
+      tracking = true;
+    }
+
+    function onTouchMove(e){
+      if(!tracking) return;
+      const t = e.touches[0];
+      dx = t.clientX - startX;
+      dy = t.clientY - startY;
+
+      // 我们接管手势，避免页面跟着滚动/回弹
+      e.preventDefault();
+    }
+
+    function onTouchEnd(){
+      if(!tracking) return;
+      tracking = false;
+
+      const absX = Math.abs(dx);
+      const absY = Math.abs(dy);
+
+      // 下滑关闭（优先判断）
+      if(dy > SWIPE_Y && absY > absX){
+        closeLB();
+        return;
+      }
+
+      // 左右切换
+      if(absX > SWIPE_X && absX > absY){
+        if(dx < 0 && current < images.length - 1){
+          current++; render();
+        }else if(dx > 0 && current > 0){
+          current--; render();
+        }
+      }
+    }
+
+    // 绑定到 lightbox（只在打开时生效）
+    lightbox.addEventListener("touchstart", onTouchStart, {passive:false});
+    lightbox.addEventListener("touchmove", onTouchMove, {passive:false});
+    lightbox.addEventListener("touchend", onTouchEnd, {passive:true});
+    lightbox.addEventListener("touchcancel", onTouchEnd, {passive:true});
   </script>
 </body>
 </html>
