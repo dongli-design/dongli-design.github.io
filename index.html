@@ -50,14 +50,14 @@
     nav{display:flex; gap:18px; color:var(--muted); font-weight:600; font-size:14px}
     nav a:hover{color:var(--text)}
 
-   /* ===== HERO (Green cover style) ===== */
+    /* ===== HERO (Green cover style) ===== */
     .hero{
       position:relative;
       margin-top:18px;
       border-radius:28px;
       overflow:hidden;
       background:#1f9d62;
-      color:#fff;
+      color: #fff;
     }
     .heroInner{
       display:grid;
@@ -108,12 +108,10 @@
       border-color:#fff;
     }
     .hero .btn:hover{transform:translateY(-1px);}
-
     .hero .divider{
       border-top:1px solid rgba(255,255,255,.35);
       margin:0;
     }
-
     @media (max-width: 980px){
       .heroInner{
         grid-template-columns:1fr;
@@ -201,7 +199,7 @@
       nav{gap:12px}
     }
 
-    /* ===== Lightbox ===== */
+    /* ===== Lightbox (one-file next/prev + pinch + pan) ===== */
     .lightbox{
       position:fixed;
       inset:0;
@@ -215,7 +213,7 @@
       opacity:0;
       transition:opacity .22s ease, background .22s ease;
 
-      /* ✅ 允许我们接管手势（捏合/滑动） */
+      /* 接管手势 */
       touch-action:none;
     }
     .lightbox.active{
@@ -223,37 +221,6 @@
       opacity:1;
       background:rgba(0,0,0,.88);
     }
-
-    /* ✅ 新增：stage 容器用于“适配屏幕 + 捏合缩放” */
-    .lb-stage{
-      width:92vw;
-      height:88vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      overflow:hidden;
-      border-radius:14px;
-      touch-action:none;
-    }
-
-    .lightbox img{
-      max-width:100%;
-      max-height:100%;
-      width:auto;
-      height:auto;
-      border-radius:14px;
-      background:#111;
-      display:block;
-
-      opacity:0;
-      transition:opacity .22s ease, transform .22s ease;
-
-      /* ✅ 缩放用 transform */
-      transform:scale(1);
-      transform-origin:center center;
-    }
-    .lightbox.active img{opacity:1;}
-    .lightbox img.is-fading{opacity:0;}
 
     .lb-ui{
       position:absolute;
@@ -266,6 +233,7 @@
       color:#fff;
       font-weight:700;
       gap:10px;
+      z-index:2;
     }
     .lb-left, .lb-right{display:flex; gap:10px; align-items:center;}
     .lb-count{color:rgba(255,255,255,.8); font-weight:600; font-size:13px;}
@@ -287,16 +255,55 @@
       bottom:18px;
       display:flex;
       gap:12px;
+      z-index:2;
     }
 
-    /* ✅ 横屏时：图片更贴合屏幕 */
+    /* ✅ stage：负责适配屏幕/承接手势 */
+    .lb-stage{
+      width:92vw;
+      height:88vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      border-radius:14px;
+      touch-action:none;
+      z-index:1;
+    }
+
+    .lightbox img{
+      max-width:100%;
+      max-height:100%;
+      width:auto;
+      height:auto;
+      border-radius:14px;
+      background:#111;
+      display:block;
+
+      /* 变换：translate + scale */
+      transform:translate3d(0,0,0) scale(1);
+      transform-origin:center center;
+
+      opacity:0;
+      transition:opacity .22s ease, transform .22s ease;
+      user-select:none;
+      -webkit-user-drag:none;
+    }
+    .lightbox.active img{
+      opacity:1;
+    }
+    .lightbox img.is-fading{
+      opacity:0;
+    }
+
+    /* 横屏更贴合 */
     @media (orientation: landscape){
       .lb-stage{
         width:94vw;
         height:84vh;
       }
-      .lb-nav{bottom:12px;}
-      .lb-ui{top:10px;}
+      .lb-nav{ bottom:12px; }
+      .lb-ui{ top:10px; }
     }
   </style>
 </head>
@@ -507,7 +514,7 @@
     </footer>
   </main>
 
-  <!-- ✅ Lightbox (one-file viewer) -->
+  <!-- ✅ Lightbox -->
   <div class="lightbox" id="lightbox" aria-hidden="true">
     <div class="lb-ui">
       <div class="lb-left">
@@ -517,7 +524,6 @@
       <div class="lb-right"></div>
     </div>
 
-    <!-- ✅ 改：加 stage 包一层，方便适配屏幕 + 捏合缩放 -->
     <div class="lb-stage" id="lb-stage" aria-label="Image viewer">
       <img id="lb-img" src="" alt="Large view" draggable="false" />
     </div>
@@ -532,7 +538,7 @@
     // 年份
     document.getElementById('y').textContent = new Date().getFullYear();
 
-    // ✅ 大图顺序（下一项就是这个顺序）
+    // ✅ 大图顺序
     const images = [
       "portfolio.jpg",
       "portfolio2.jpg",
@@ -560,21 +566,68 @@
 
     let current = 0;
 
-    // ✅ Zoom state
+    // ✅ Zoom + Pan state
     let scale = 1;
     const MIN_SCALE = 1;
     const MAX_SCALE = 3;
 
+    let tx = 0, ty = 0;        // 平移
+    let baseW = 0, baseH = 0;  // contain 适配后的基础显示尺寸
+
     function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+
+    function applyTransform(){
+      lbImg.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(${scale})`;
+    }
+
+    function computeBaseSize(){
+      const stageW = lbStage.clientWidth;
+      const stageH = lbStage.clientHeight;
+      const imgW = lbImg.naturalWidth || 1;
+      const imgH = lbImg.naturalHeight || 1;
+      const ar = imgW / imgH;
+
+      let w = stageW;
+      let h = w / ar;
+      if(h > stageH){
+        h = stageH;
+        w = h * ar;
+      }
+      baseW = w;
+      baseH = h;
+    }
+
+    function clampPan(){
+      const stageW = lbStage.clientWidth;
+      const stageH = lbStage.clientHeight;
+
+      const scaledW = baseW * scale;
+      const scaledH = baseH * scale;
+
+      const maxX = Math.max(0, (scaledW - stageW) / 2);
+      const maxY = Math.max(0, (scaledH - stageH) / 2);
+
+      tx = clamp(tx, -maxX, maxX);
+      ty = clamp(ty, -maxY, maxY);
+    }
+
     function setScale(next){
       scale = clamp(next, MIN_SCALE, MAX_SCALE);
-      lbImg.style.transform = `scale(${scale})`;
+      clampPan();
+      applyTransform();
     }
-    function resetZoom(){ setScale(1); }
+
+    function resetView(){
+      scale = 1;
+      tx = 0;
+      ty = 0;
+      clampPan();
+      applyTransform();
+    }
 
     function render(){
-      // 换图前先重置缩放
-      resetZoom();
+      // 换图先复位（等图片 load 后再算 base size）
+      resetView();
 
       lbImg.classList.add("is-fading");
       lbImg.src = images[current];
@@ -583,6 +636,10 @@
       nextBtn.disabled = (current === images.length - 1);
 
       lbImg.onload = () => {
+        computeBaseSize();
+        clampPan();
+        applyTransform();
+
         requestAnimationFrame(() => {
           lbImg.classList.remove("is-fading");
         });
@@ -600,7 +657,7 @@
       lightbox.classList.remove("active");
       lightbox.setAttribute("aria-hidden", "true");
       lbImg.src = "";
-      resetZoom();
+      resetView();
     }
 
     // 打开
@@ -618,7 +675,7 @@
     // 关闭
     closeBtn.addEventListener("click", closeLB);
 
-    // 点黑色背景关闭（点 stage 不关）
+    // 点黑色背景关闭
     lightbox.addEventListener("click", (e)=>{
       if(e.target === lightbox) closeLB();
     });
@@ -633,7 +690,8 @@
 
     /* =========================
        ✅ Touch Gestures (Mobile)
-       - 1 finger: swipe left/right (prev/next), swipe down (close)
+       - scale == 1: swipe left/right = prev/next, swipe down = close
+       - scale > 1: one finger drag = PAN
        - 2 fingers: pinch to zoom
        - double tap: zoom toggle
     ========================== */
@@ -645,6 +703,10 @@
     let isPinching = false;
     let startDist = 0;
     let startScale = 1;
+
+    let isPanning = false;
+    let panStartX = 0, panStartY = 0;
+    let panStartTx = 0, panStartTy = 0;
 
     const SWIPE_X = 45;
     const SWIPE_Y = 70;
@@ -661,8 +723,14 @@
       if(!lightbox.classList.contains("active")) return;
       const now = Date.now();
       if(now - lastTap < 280){
-        if(scale === 1) setScale(2);
-        else resetZoom();
+        if(scale === 1){
+          scale = 2;
+          tx = 0; ty = 0;
+          clampPan();
+          applyTransform();
+        }else{
+          resetView();
+        }
       }
       lastTap = now;
     }
@@ -670,28 +738,43 @@
     function onTouchStart(e){
       if(!lightbox.classList.contains("active")) return;
 
-      if(e.touches.length === 1){
-        const t = e.touches[0];
-        startX = t.clientX;
-        startY = t.clientY;
-        dx = 0; dy = 0;
-        tracking = true;
-        isPinching = false;
-        return;
-      }
-
       if(e.touches.length === 2){
         isPinching = true;
         tracking = false;
+        isPanning = false;
         startDist = getTouchDist(e.touches[0], e.touches[1]);
         startScale = scale;
+        return;
+      }
+
+      if(e.touches.length === 1){
+        const t = e.touches[0];
+
+        if(scale > 1){
+          // ✅ 放大后：pan
+          isPanning = true;
+          tracking = false;
+          panStartX = t.clientX;
+          panStartY = t.clientY;
+          panStartTx = tx;
+          panStartTy = ty;
+        }else{
+          // ✅ 未放大：swipe / 下滑关闭
+          tracking = true;
+          isPanning = false;
+          startX = t.clientX;
+          startY = t.clientY;
+          dx = 0; dy = 0;
+        }
+
+        isPinching = false;
       }
     }
 
     function onTouchMove(e){
       if(!lightbox.classList.contains("active")) return;
 
-      // 2 指捏合缩放
+      // pinch
       if(isPinching && e.touches.length === 2){
         e.preventDefault();
         const dist = getTouchDist(e.touches[0], e.touches[1]);
@@ -700,7 +783,20 @@
         return;
       }
 
-      // 1 指滑动/下滑关闭
+      // pan
+      if(isPanning && e.touches.length === 1){
+        e.preventDefault();
+        const t = e.touches[0];
+        const mx = t.clientX - panStartX;
+        const my = t.clientY - panStartY;
+        tx = panStartTx + mx;
+        ty = panStartTy + my;
+        clampPan();
+        applyTransform();
+        return;
+      }
+
+      // swipe (only scale==1)
       if(tracking && e.touches.length === 1){
         e.preventDefault();
         const t = e.touches[0];
@@ -717,6 +813,11 @@
         return;
       }
 
+      if(isPanning){
+        isPanning = false;
+        return;
+      }
+
       if(!tracking) return;
       tracking = false;
 
@@ -729,7 +830,7 @@
         return;
       }
 
-      // 左右切换：建议在未放大时触发（避免看细节时误切换）
+      // 左右切换
       if(scale === 1 && absX > SWIPE_X && absX > absY){
         if(dx < 0 && current < images.length - 1){
           current++; render();
@@ -739,12 +840,20 @@
       }
     }
 
-    // 绑定到 stage（更稳）
+    // 绑定到 stage
     lbStage.addEventListener("touchstart", onTouchStart, {passive:false});
     lbStage.addEventListener("touchmove", onTouchMove, {passive:false});
     lbStage.addEventListener("touchend", onTouchEnd, {passive:true});
     lbStage.addEventListener("touchcancel", onTouchEnd, {passive:true});
     lbStage.addEventListener("click", onTap);
+
+    // 旋转/尺寸变化后：重新计算边界（避免横竖屏切换后拖动出界）
+    window.addEventListener("resize", ()=>{
+      if(!lightbox.classList.contains("active")) return;
+      computeBaseSize();
+      clampPan();
+      applyTransform();
+    });
   </script>
 </body>
 </html>
