@@ -535,367 +535,441 @@
   </div>
 
   <script>
-    // 年份
-    document.getElementById('y').textContent = new Date().getFullYear();
+  // 年份
+  document.getElementById('y').textContent = new Date().getFullYear();
 
-    // ✅ 大图顺序
-    const images = [
-      "portfolio.jpg",
-      "portfolio2.jpg",
-      "portfolio3.jpg",
-      "portfolio4.jpg",
-      "portfolio5.jpg",
-      "portfolio6.jpg",
-      "portfolio7.jpg",
-      "portfolio8.jpg",
-      "portfolio9.jpg",
-      "portfolio10.jpg",
-      "portfolio11.jpg",
-      "portfolio12.jpg",
-      "portfolio13.jpg",
-      "portfolio14.jpg"
-    ];
+  // ✅ 大图顺序
+  const images = [
+    "portfolio.jpg",
+    "portfolio2.jpg",
+    "portfolio3.jpg",
+    "portfolio4.jpg",
+    "portfolio5.jpg",
+    "portfolio6.jpg",
+    "portfolio7.jpg",
+    "portfolio8.jpg",
+    "portfolio9.jpg",
+    "portfolio10.jpg",
+    "portfolio11.jpg",
+    "portfolio12.jpg",
+    "portfolio13.jpg",
+    "portfolio14.jpg"
+  ];
 
-    const lightbox = document.getElementById("lightbox");
-    const lbImg = document.getElementById("lb-img");
-    const lbStage = document.getElementById("lb-stage");
-    const lbCount = document.getElementById("lb-count");
-    const prevBtn = document.getElementById("lb-prev");
-    const nextBtn = document.getElementById("lb-next");
-    const closeBtn = document.getElementById("lb-close");
+  const lightbox = document.getElementById("lightbox");
+  const lbImg = document.getElementById("lb-img");
+  const lbStage = document.getElementById("lb-stage");
+  const lbCount = document.getElementById("lb-count");
+  const prevBtn = document.getElementById("lb-prev");
+  const nextBtn = document.getElementById("lb-next");
+  const closeBtn = document.getElementById("lb-close");
 
-    let current = 0;
+  let current = 0;
 
-    // ✅ Zoom + Pan state
-    let scale = 1;
-    const MIN_SCALE = 1;
-    const MAX_SCALE = 3;
+  // ✅ Zoom + Pan state
+  let scale = 1;
+  const MIN_SCALE = 1;
+  const MAX_SCALE = 3;
 
-    let tx = 0, ty = 0;        // 平移
-    let baseW = 0, baseH = 0;  // contain 适配后的基础显示尺寸
+  let tx = 0, ty = 0;        // 平移
+  let baseW = 0, baseH = 0;  // contain 适配后的基础显示尺寸
 
-    function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+  // ✅ “到边缘停留一下再翻页” 状态
+  let edgePrimedDir = 0;   // -1:准备下一张  +1:准备上一张  0:没准备
+  let edgePrimedAt = 0;    // 准备时间戳
 
-    function applyTransform(){
-      lbImg.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(${scale})`;
+  function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+
+  function applyTransform(){
+    lbImg.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(${scale})`;
+  }
+
+  function computeBaseSize(){
+    const stageW = lbStage.clientWidth;
+    const stageH = lbStage.clientHeight;
+    const imgW = lbImg.naturalWidth || 1;
+    const imgH = lbImg.naturalHeight || 1;
+    const ar = imgW / imgH;
+
+    let w = stageW;
+    let h = w / ar;
+    if(h > stageH){
+      h = stageH;
+      w = h * ar;
     }
+    baseW = w;
+    baseH = h;
+  }
 
-    function computeBaseSize(){
-      const stageW = lbStage.clientWidth;
-      const stageH = lbStage.clientHeight;
-      const imgW = lbImg.naturalWidth || 1;
-      const imgH = lbImg.naturalHeight || 1;
-      const ar = imgW / imgH;
+  // ✅ clampPan 返回边界，便于判断是否在边缘
+  function clampPan(){
+    const stageW = lbStage.clientWidth;
+    const stageH = lbStage.clientHeight;
 
-      let w = stageW;
-      let h = w / ar;
-      if(h > stageH){
-        h = stageH;
-        w = h * ar;
-      }
-      baseW = w;
-      baseH = h;
-    }
+    const scaledW = baseW * scale;
+    const scaledH = baseH * scale;
 
-   function clampPan(){
-  const stageW = lbStage.clientWidth;
-  const stageH = lbStage.clientHeight;
+    const maxX = Math.max(0, (scaledW - stageW) / 2);
+    const maxY = Math.max(0, (scaledH - stageH) / 2);
 
-  const scaledW = baseW * scale;
-  const scaledH = baseH * scale;
+    tx = clamp(tx, -maxX, maxX);
+    ty = clamp(ty, -maxY, maxY);
 
-  const maxX = Math.max(0, (scaledW - stageW) / 2);
-  const maxY = Math.max(0, (scaledH - stageH) / 2);
+    return { maxX, maxY };
+  }
 
-  tx = clamp(tx, -maxX, maxX);
-  ty = clamp(ty, -maxY, maxY);
+  function setScale(next){
+    scale = clamp(next, MIN_SCALE, MAX_SCALE);
+    clampPan();
+    applyTransform();
+  }
 
-  return { maxX, maxY };
-}
+  function resetView(){
+    scale = 1;
+    tx = 0;
+    ty = 0;
+    clampPan();
+    applyTransform();
+  }
 
-    function setScale(next){
-      scale = clamp(next, MIN_SCALE, MAX_SCALE);
+  // ✅ HAPTIC（轻微震动：支持就震，不支持就跳过）
+  function hapticTick(){
+    try{
+      if(navigator.vibrate) navigator.vibrate(10);
+    }catch(e){}
+  }
+
+  // ✅ 双击自动 fit：横图 fit width，竖图 fit height
+  function zoomFitScreen(){
+    // 必须在图片已加载并且 baseW/baseH 已算出后才准确
+    const stageW = lbStage.clientWidth;
+    const stageH = lbStage.clientHeight;
+
+    const iw = lbImg.naturalWidth || 1;
+    const ih = lbImg.naturalHeight || 1;
+    const isLandscape = iw >= ih;
+
+    // baseW/baseH 是 contain 下的尺寸，所以 scale= stage/base 就是“铺满某一边”
+    let target = isLandscape ? (stageW / baseW) : (stageH / baseH);
+
+    // 防止超大
+    target = clamp(target, MIN_SCALE, MAX_SCALE);
+
+    tx = 0; ty = 0;
+    scale = target;
+    clampPan();
+    applyTransform();
+  }
+
+  function render(){
+    // 切图时清空“准备翻页”状态
+    edgePrimedDir = 0; edgePrimedAt = 0;
+
+    // 换图先复位（等图片 load 后再算 base size）
+    resetView();
+
+    lbImg.classList.add("is-fading");
+    lbImg.src = images[current];
+    lbCount.textContent = `${current + 1} / ${images.length}`;
+    prevBtn.disabled = (current === 0);
+    nextBtn.disabled = (current === images.length - 1);
+
+    lbImg.onload = () => {
+      computeBaseSize();
       clampPan();
       applyTransform();
-    }
 
-    function resetView(){
-      scale = 1;
-      tx = 0;
-      ty = 0;
-      clampPan();
-      applyTransform();
-    }
-
-    function render(){
-      // 换图先复位（等图片 load 后再算 base size）
-      resetView();
-
-      lbImg.classList.add("is-fading");
-      lbImg.src = images[current];
-      lbCount.textContent = `${current + 1} / ${images.length}`;
-      prevBtn.disabled = (current === 0);
-      nextBtn.disabled = (current === images.length - 1);
-
-      lbImg.onload = () => {
-        computeBaseSize();
-        clampPan();
-        applyTransform();
-
-        requestAnimationFrame(() => {
-          lbImg.classList.remove("is-fading");
-        });
-      };
-    }
-
-    function openLB(i){
-      current = Math.max(0, Math.min(images.length - 1, i));
-      lightbox.classList.add("active");
-      lightbox.setAttribute("aria-hidden", "false");
-      render();
-    }
-
-    function closeLB(){
-      lightbox.classList.remove("active");
-      lightbox.setAttribute("aria-hidden", "true");
-      lbImg.src = "";
-      resetView();
-    }
-
-    // 打开
-    document.querySelectorAll(".card[data-index]").forEach(card=>{
-      card.addEventListener("click", (e)=>{
-        e.preventDefault();
-        openLB(parseInt(card.dataset.index, 10));
+      requestAnimationFrame(() => {
+        lbImg.classList.remove("is-fading");
       });
+    };
+  }
+
+  function openLB(i){
+    current = Math.max(0, Math.min(images.length - 1, i));
+    lightbox.classList.add("active");
+    lightbox.setAttribute("aria-hidden", "false");
+    render();
+  }
+
+  function closeLB(){
+    lightbox.classList.remove("active");
+    lightbox.setAttribute("aria-hidden", "true");
+    lbImg.src = "";
+    resetView();
+    edgePrimedDir = 0; edgePrimedAt = 0;
+  }
+
+  // 打开
+  document.querySelectorAll(".card[data-index]").forEach(card=>{
+    card.addEventListener("click", (e)=>{
+      e.preventDefault();
+      openLB(parseInt(card.dataset.index, 10));
     });
+  });
 
-    // 下一项 / 上一项
-    nextBtn.addEventListener("click", ()=>{ if(current < images.length - 1){ current++; render(); }});
-    prevBtn.addEventListener("click", ()=>{ if(current > 0){ current--; render(); }});
+  // 下一项 / 上一项
+  nextBtn.addEventListener("click", ()=>{ if(current < images.length - 1){ current++; render(); }});
+  prevBtn.addEventListener("click", ()=>{ if(current > 0){ current--; render(); }});
 
-    // 关闭
-    closeBtn.addEventListener("click", closeLB);
+  // 关闭
+  closeBtn.addEventListener("click", closeLB);
 
-    // 点黑色背景关闭
-    lightbox.addEventListener("click", (e)=>{
-      if(e.target === lightbox) closeLB();
-    });
+  // 点黑色背景关闭
+  lightbox.addEventListener("click", (e)=>{
+    if(e.target === lightbox) closeLB();
+  });
 
-    // 键盘
-    window.addEventListener("keydown", (e)=>{
-      if(!lightbox.classList.contains("active")) return;
-      if(e.key === "ArrowRight") nextBtn.click();
-      if(e.key === "ArrowLeft") prevBtn.click();
-      if(e.key === "Escape") closeLB();
-    });
+  // 键盘
+  window.addEventListener("keydown", (e)=>{
+    if(!lightbox.classList.contains("active")) return;
+    if(e.key === "ArrowRight") nextBtn.click();
+    if(e.key === "ArrowLeft") prevBtn.click();
+    if(e.key === "Escape") closeLB();
+  });
 
-    /* =========================
-       ✅ Touch Gestures (Mobile)
-       - scale == 1: swipe left/right = prev/next, swipe down = close
-       - scale > 1: one finger drag = PAN
-       - 2 fingers: pinch to zoom
-       - double tap: zoom toggle
-    ========================== */
+  /* =========================
+     ✅ Touch Gestures (Upgraded)
+     - pinch: zoom
+     - pan: scale>1 单指拖动
+     - flip: scale>1 到边缘“先准备(震动+停留)”，再“快速甩动”才翻页
+     - swipe: scale==1 左右翻页，下滑关闭
+     - double tap: fit screen（横图fit width / 竖图fit height）
+  ========================== */
 
-    let tracking = false;
-    let startX = 0, startY = 0;
-    let dx = 0, dy = 0;
+  let tracking = false;
+  let startX = 0, startY = 0;
+  let dx = 0, dy = 0;
 
-    let isPinching = false;
-    let startDist = 0;
-    let startScale = 1;
+  let isPinching = false;
+  let startDist = 0;
+  let startScale = 1;
 
-    let isPanning = false;
-    let panStartX = 0, panStartY = 0;
-    let panStartTx = 0, panStartTy = 0;
+  let isPanning = false;
+  let panStartX = 0, panStartY = 0;
+  let panStartTx = 0, panStartTy = 0;
 
-    const SWIPE_X = 45;
-    const SWIPE_Y = 70;
+  // ✅ 用时间算速度（甩动阈值）
+  let gestureStartTime = 0;
 
-    function getTouchDist(t1, t2){
-      const x = t2.clientX - t1.clientX;
-      const y = t2.clientY - t1.clientY;
-      return Math.hypot(x, y);
-    }
+  const SWIPE_X = 45;
+  const SWIPE_Y = 70;
 
-    // 双击放大/还原
-    let lastTap = 0;
-    function onTap(){
-      if(!lightbox.classList.contains("active")) return;
-      const now = Date.now();
-      if(now - lastTap < 280){
-        if(scale === 1){
-          scale = 2;
-          tx = 0; ty = 0;
-          clampPan();
-          applyTransform();
-        }else{
-          resetView();
-        }
+  function getTouchDist(t1, t2){
+    const x = t2.clientX - t1.clientX;
+    const y = t2.clientY - t1.clientY;
+    return Math.hypot(x, y);
+  }
+
+  // 双击：fit screen
+  let lastTap = 0;
+  function onTap(){
+    if(!lightbox.classList.contains("active")) return;
+    const now = Date.now();
+    if(now - lastTap < 280){
+      if(scale === 1){
+        // 先确保 base 尺寸正确（防止极少数情况下还没load）
+        if(!baseW || !baseH) computeBaseSize();
+        zoomFitScreen();
+      }else{
+        resetView();
       }
-      lastTap = now;
+    }
+    lastTap = now;
+  }
+
+  function onTouchStart(e){
+    if(!lightbox.classList.contains("active")) return;
+    gestureStartTime = Date.now();
+
+    if(e.touches.length === 2){
+      isPinching = true;
+      tracking = false;
+      isPanning = false;
+      startDist = getTouchDist(e.touches[0], e.touches[1]);
+      startScale = scale;
+      return;
     }
 
-    function onTouchStart(e){
-      if(!lightbox.classList.contains("active")) return;
+    if(e.touches.length === 1){
+      const t = e.touches[0];
 
-      if(e.touches.length === 2){
-        isPinching = true;
+      if(scale > 1){
+        isPanning = true;
         tracking = false;
+        panStartX = t.clientX;
+        panStartY = t.clientY;
+        panStartTx = tx;
+        panStartTy = ty;
+        dx = 0; dy = 0;
+      }else{
+        tracking = true;
         isPanning = false;
-        startDist = getTouchDist(e.touches[0], e.touches[1]);
-        startScale = scale;
+        startX = t.clientX;
+        startY = t.clientY;
+        dx = 0; dy = 0;
+      }
+
+      isPinching = false;
+    }
+  }
+
+  function onTouchMove(e){
+    if(!lightbox.classList.contains("active")) return;
+
+    // pinch
+    if(isPinching && e.touches.length === 2){
+      e.preventDefault();
+      const dist = getTouchDist(e.touches[0], e.touches[1]);
+      const ratio = dist / startDist;
+      setScale(startScale * ratio);
+      return;
+    }
+
+    // pan
+    if(isPanning && e.touches.length === 1){
+      e.preventDefault();
+      const t = e.touches[0];
+      const mx = t.clientX - panStartX;
+      const my = t.clientY - panStartY;
+
+      dx = mx; // 给 touchend 算速度 & 方向
+      dy = my;
+
+      tx = panStartTx + mx;
+      ty = panStartTy + my;
+
+      clampPan();
+      applyTransform();
+      return;
+    }
+
+    // swipe (scale==1)
+    if(tracking && e.touches.length === 1){
+      e.preventDefault();
+      const t = e.touches[0];
+      dx = t.clientX - startX;
+      dy = t.clientY - startY;
+    }
+  }
+
+  function onTouchEnd(){
+    if(!lightbox.classList.contains("active")) return;
+
+    // pinch end
+    if(isPinching){
+      isPinching = false;
+      return;
+    }
+
+    const dt = Math.max(1, Date.now() - gestureStartTime); // ms
+    const vx = dx / dt; // px/ms
+
+    // ✅ 放大后：pan 结束 → 到边缘 “先准备，再快速甩动翻页”
+    if(isPanning){
+      isPanning = false;
+
+      const absX = Math.abs(dx);
+      const absY = Math.abs(dy);
+
+      // 下滑关闭（放大也支持）
+      if(dy > SWIPE_Y && absY > absX){
+        edgePrimedDir = 0; edgePrimedAt = 0;
+        closeLB();
         return;
       }
 
-      if(e.touches.length === 1){
-        const t = e.touches[0];
+      // 只处理明显水平动作
+      const PAN_SWIPE_X = 90;           // 放大后距离阈值（更不敏感）
+      const PRIME_WINDOW = 800;         // 第二次滑动有效窗口
+      const VELOCITY_TH = 0.55;         // ✅ 速度阈值：必须“甩一下” (px/ms) 约等于 550px/s
+      const { maxX } = clampPan();
+      const edgePad = 2;
 
-        if(scale > 1){
-          // ✅ 放大后：pan
-          isPanning = true;
-          tracking = false;
-          panStartX = t.clientX;
-          panStartY = t.clientY;
-          panStartTx = tx;
-          panStartTy = ty;
-        }else{
-          // ✅ 未放大：swipe / 下滑关闭
-          tracking = true;
-          isPanning = false;
-          startX = t.clientX;
-          startY = t.clientY;
-          dx = 0; dy = 0;
+      const atLeftEdge  = (tx <= -maxX + edgePad);
+      const atRightEdge = (tx >=  maxX - edgePad);
+
+      // 想去下一张：向左滑（dx<0）且在左边缘
+      if(absX > PAN_SWIPE_X && absX > absY && dx < 0 && atLeftEdge && current < images.length - 1){
+        const now = Date.now();
+
+        // 第一次：准备 + 震动
+        if(edgePrimedDir !== -1 || (now - edgePrimedAt) > PRIME_WINDOW){
+          edgePrimedDir = -1;
+          edgePrimedAt = now;
+          hapticTick();
+          return; // 停一下
         }
 
-        isPinching = false;
+        // 第二次：必须满足“速度阈值”或“非常大距离”
+        if(Math.abs(vx) >= VELOCITY_TH || absX >= 160){
+          edgePrimedDir = 0; edgePrimedAt = 0;
+          current++;
+          render();
+        }
+        return;
       }
+
+      // 想去上一张：向右滑（dx>0）且在右边缘
+      if(absX > PAN_SWIPE_X && absX > absY && dx > 0 && atRightEdge && current > 0){
+        const now = Date.now();
+
+        if(edgePrimedDir !== 1 || (now - edgePrimedAt) > PRIME_WINDOW){
+          edgePrimedDir = 1;
+          edgePrimedAt = now;
+          hapticTick();
+          return;
+        }
+
+        if(Math.abs(vx) >= VELOCITY_TH || absX >= 160){
+          edgePrimedDir = 0; edgePrimedAt = 0;
+          current--;
+          render();
+        }
+        return;
+      }
+
+      // 其它情况：不翻页，清空准备
+      edgePrimedDir = 0; edgePrimedAt = 0;
+      return;
     }
 
-    function onTouchMove(e){
-  if(!lightbox.classList.contains("active")) return;
-
-  // pinch
-  if(isPinching && e.touches.length === 2){
-    e.preventDefault();
-    const dist = getTouchDist(e.touches[0], e.touches[1]);
-    const ratio = dist / startDist;
-    setScale(startScale * ratio);
-    return;
-  }
-
-  // pan (scale > 1)
-  if(isPanning && e.touches.length === 1){
-    e.preventDefault();
-    const t = e.touches[0];
-    const mx = t.clientX - panStartX;
-    const my = t.clientY - panStartY;
-
-    // ✅ 记录本次手势总体位移：用于 touchend 判断是否要切图
-    dx = mx;
-    dy = my;
-
-    tx = panStartTx + mx;
-    ty = panStartTy + my;
-
-    clampPan();
-    applyTransform();
-    return;
-  }
-
-  // swipe (only scale==1)
-  if(tracking && e.touches.length === 1){
-    e.preventDefault();
-    const t = e.touches[0];
-    dx = t.clientX - startX;
-    dy = t.clientY - startY;
-  }
-}
-
-    function onTouchEnd(){
-  if(!lightbox.classList.contains("active")) return;
-
-  if(isPinching){
-    isPinching = false;
-    return;
-  }
-
-  // ✅ 放大后的手势结束：支持 “到边缘再滑切换”
-  if(isPanning){
-    isPanning = false;
+    // ✅ 未放大：原来的 swipe
+    if(!tracking) return;
+    tracking = false;
 
     const absX = Math.abs(dx);
     const absY = Math.abs(dy);
 
-    // 下滑关闭（放大也支持）
     if(dy > SWIPE_Y && absY > absX){
       closeLB();
       return;
     }
 
-    // 只有“明显水平滑动”才考虑切图
-    if(absX > SWIPE_X && absX > absY){
-      const { maxX } = clampPan(); // 得到边界
-      const edgePad = 2; // 容忍误差
-
-      const atLeftEdge  = (tx <= -maxX + edgePad);
-      const atRightEdge = (tx >=  maxX - edgePad);
-
-      // ✅ 在边缘继续往外滑：切换
-      if(dx < 0 && atLeftEdge && current < images.length - 1){
-        current++;
-        render();
-        return;
-      }
-      if(dx > 0 && atRightEdge && current > 0){
-        current--;
-        render();
-        return;
+    if(scale === 1 && absX > SWIPE_X && absX > absY){
+      if(dx < 0 && current < images.length - 1){
+        current++; render();
+      }else if(dx > 0 && current > 0){
+        current--; render();
       }
     }
-
-    // 不切图就结束（保持当前 pan 位置）
-    return;
   }
 
-  // 未放大：原来的 swipe 逻辑
-  if(!tracking) return;
-  tracking = false;
+  // 绑定到 stage
+  lbStage.addEventListener("touchstart", onTouchStart, {passive:false});
+  lbStage.addEventListener("touchmove", onTouchMove, {passive:false});
+  lbStage.addEventListener("touchend", onTouchEnd, {passive:true});
+  lbStage.addEventListener("touchcancel", onTouchEnd, {passive:true});
+  lbStage.addEventListener("click", onTap);
 
-  const absX = Math.abs(dx);
-  const absY = Math.abs(dy);
+  // 横竖屏/尺寸变化：重新算边界，避免出界
+  window.addEventListener("resize", ()=>{
+    if(!lightbox.classList.contains("active")) return;
+    computeBaseSize();
+    clampPan();
+    applyTransform();
+  });
+</script>
 
-  // 下滑关闭
-  if(dy > SWIPE_Y && absY > absX){
-    closeLB();
-    return;
-  }
-
-  // 左右切换（scale==1）
-  if(scale === 1 && absX > SWIPE_X && absX > absY){
-    if(dx < 0 && current < images.length - 1){
-      current++; render();
-    }else if(dx > 0 && current > 0){
-      current--; render();
-    }
-  }
-}
-
-    // 绑定到 stage
-    lbStage.addEventListener("touchstart", onTouchStart, {passive:false});
-    lbStage.addEventListener("touchmove", onTouchMove, {passive:false});
-    lbStage.addEventListener("touchend", onTouchEnd, {passive:true});
-    lbStage.addEventListener("touchcancel", onTouchEnd, {passive:true});
-    lbStage.addEventListener("click", onTap);
-
-    // 旋转/尺寸变化后：重新计算边界（避免横竖屏切换后拖动出界）
-    window.addEventListener("resize", ()=>{
-      if(!lightbox.classList.contains("active")) return;
-      computeBaseSize();
-      clampPan();
-      applyTransform();
-    });
-  </script>
 </body>
 </html>
