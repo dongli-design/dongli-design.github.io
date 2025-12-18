@@ -308,46 +308,6 @@
       .lb-nav{ bottom:12px; }
       .lb-ui{ top:10px; }
     }
-    /* ✅ “两张图之间的缝隙”提示：只在 stage 上出现，不抖图片 */
-/* ✅ 缝隙光：只在左右边缘出现一条“窄缝”，不会铺在图片上 */
-.lb-stage::after{
-  content:"";
-  position:absolute;
-  top:0;
-  bottom:0;
-
-  /* 关键：只做一条窄缝，而不是铺满 */
-  width:18px;                 /* 缝隙宽度，可调 12~24 */
-  opacity:0;
-  pointer-events:none;
-
-  /* 不要影响图片：只画在边缘 */
-  transition:opacity .14s ease, transform .14s ease;
-}
-
-/* 左边缘：左侧出现光（从左往中间淡出） */
-.lb-stage.edge-left::after{
-  opacity:1;
-  transform:translateX(-6px);
-  background:
-    linear-gradient(to left,
-      rgba(255,255,255,.20),
-      rgba(255,255,255,.10) 18%,
-      rgba(255,255,255,0) 45%);
-}
-
-/* 右边缘：右侧出现光（从右往中间淡出） */
-.lb-stage.edge-right::after{
-  opacity:1;
-  transform:translateX(6px);
-  background:
-    linear-gradient(to right,
-      rgba(255,255,255,.20),
-      rgba(255,255,255,.10) 18%,
-      rgba(255,255,255,0) 45%);
-}
-
-
 
   </style>
 </head>
@@ -963,7 +923,6 @@
         edgePrimedDir = -1;
         edgePrimedAt = now;
         hapticTick();
-        showEdgeGap(-1);   // ✅ 往左滑 → 左边亮
         return;
       }
 
@@ -990,7 +949,6 @@
         edgePrimedDir = 1;
         edgePrimedAt = now;
         hapticTick();
-        showEdgeGap(1);    // ✅ 往右滑 → 右边亮
         return;
       }
 
