@@ -322,7 +322,7 @@
 /* 左边缘：出现一条“缝隙光” */
 .lb-stage.edge-left::after{
   opacity:1;
-  transform:translateX(10px); /* ✅ 像相册那样“顶住” */
+  transform:translateX(-6px); /* ✅ 像相册那样“顶住” */
   background:
     linear-gradient(to right,
       rgba(255,255,255,.20),
@@ -333,7 +333,7 @@
 /* 右边缘：同理 */
 .lb-stage.edge-right::after{
   opacity:1;
-  transform:translateX(-10px);
+  transform:translateX(6px);
   background:
     linear-gradient(to left,
       rgba(255,255,255,.20),
