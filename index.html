@@ -325,27 +325,28 @@
   transition:opacity .14s ease, transform .14s ease;
 }
 
-/* 左边缘：缝隙在最左侧 */
+/* 左边缘：左侧出现光（从左往中间淡出） */
 .lb-stage.edge-left::after{
-  left:0;
   opacity:1;
-  transform:translateX(-6px); /* “顶住”的感觉 */
- background:
-  linear-gradient(to left, rgba(0,0,0,.35), rgba(0,0,0,0) 55%),
-  linear-gradient(to left, rgba(255,255,255,.22), rgba(255,255,255,.10) 55%, rgba(255,255,255,0));
-
+  transform:translateX(-6px);
+  background:
+    linear-gradient(to left,
+      rgba(255,255,255,.20),
+      rgba(255,255,255,.10) 18%,
+      rgba(255,255,255,0) 45%);
 }
 
-/* 右边缘：缝隙在最右侧 */
+/* 右边缘：右侧出现光（从右往中间淡出） */
 .lb-stage.edge-right::after{
-  right:0;
   opacity:1;
   transform:translateX(6px);
   background:
-  linear-gradient(to right, rgba(0,0,0,.35), rgba(0,0,0,0) 55%),
-  linear-gradient(to right, rgba(255,255,255,.22), rgba(255,255,255,.10) 55%, rgba(255,255,255,0));
-
+    linear-gradient(to right,
+      rgba(255,255,255,.20),
+      rgba(255,255,255,.10) 18%,
+      rgba(255,255,255,0) 45%);
 }
+
 
 
   </style>
