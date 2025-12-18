@@ -50,14 +50,14 @@
     nav{display:flex; gap:18px; color:var(--muted); font-weight:600; font-size:14px}
     nav a:hover{color:var(--text)}
 
-    /* ===== HERO (Green cover style) ===== */
+    /* ===== HERO ===== */
     .hero{
       position:relative;
       margin-top:18px;
       border-radius:28px;
       overflow:hidden;
       background:#1f9d62;
-      color: #fff;
+      color:#fff;
     }
     .heroInner{
       display:grid;
@@ -85,11 +85,7 @@
       color:rgba(255,255,255,.92);
       max-width:60ch;
     }
-    .hero .cta{
-      display:flex;
-      gap:14px;
-      flex-wrap:wrap;
-    }
+    .hero .cta{display:flex; gap:14px; flex-wrap:wrap;}
     .hero .btn{
       display:inline-flex;
       align-items:center;
@@ -108,15 +104,9 @@
       border-color:#fff;
     }
     .hero .btn:hover{transform:translateY(-1px);}
-    .hero .divider{
-      border-top:1px solid rgba(255,255,255,.35);
-      margin:0;
-    }
+    .hero .divider{border-top:1px solid rgba(255,255,255,.35); margin:0;}
     @media (max-width: 980px){
-      .heroInner{
-        grid-template-columns:1fr;
-        padding:64px 36px 48px;
-      }
+      .heroInner{grid-template-columns:1fr; padding:64px 36px 48px;}
       .hero h1{font-size:40px}
     }
 
@@ -144,20 +134,9 @@
       transition:transform .15s ease, box-shadow .15s ease;
       cursor:pointer;
     }
-    .card:hover{
-      transform:translateY(-2px);
-      box-shadow:0 10px 30px rgba(0,0,0,.06);
-    }
-    .thumb{
-      background:var(--card);
-      aspect-ratio: 5 / 2;
-      overflow:hidden;
-    }
-    .thumb img{
-      width:100%; height:100%;
-      object-fit:cover;
-      display:block;
-    }
+    .card:hover{transform:translateY(-2px); box-shadow:0 10px 30px rgba(0,0,0,.06);}
+    .thumb{background:var(--card); aspect-ratio:5/2; overflow:hidden;}
+    .thumb img{width:100%; height:100%; object-fit:cover; display:block;}
     .meta{padding:12px 12px 14px}
     .meta .tag{color:var(--muted); font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.6px}
     .meta .title{margin:6px 0 0; font-size:14px; font-weight:800}
@@ -199,11 +178,11 @@
       nav{gap:12px}
     }
 
-    /* ===== Lightbox (one-file next/prev + pinch + pan) ===== */
+    /* ===== Lightbox ===== */
     .lightbox{
       position:fixed;
       inset:0;
-      background:rgba(0,0,0,.0);
+      background:rgba(0,0,0,0);
       display:none;
       align-items:center;
       justify-content:center;
@@ -213,8 +192,7 @@
       opacity:0;
       transition:opacity .22s ease, background .22s ease;
 
-      /* 接管手势 */
-      touch-action:none;
+      touch-action:none; /* 接管手势 */
     }
     .lightbox.active{
       display:flex;
@@ -258,21 +236,18 @@
       z-index:2;
     }
 
-    /* ✅ stage：负责适配屏幕/承接手势 */
     .lb-stage{
-  width:92vw;
-  height:88vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-  border-radius:14px;
-  touch-action:none;
-  z-index:1;
-
-  position:relative; /* ✅ 新增：让缝隙提示层定位 */
-}
-
+      width:92vw;
+      height:88vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      border-radius:14px;
+      touch-action:none;
+      z-index:1;
+      position:relative;
+    }
 
     .lightbox img{
       max-width:100%;
@@ -283,37 +258,26 @@
       background:#111;
       display:block;
 
-      /* 变换：translate + scale */
       transform:translate3d(0,0,0) scale(1);
       transform-origin:center center;
 
       opacity:0;
-      transition:opacity .22s ease, transform .22s ease;
+      transition:opacity .22s ease;
       user-select:none;
       -webkit-user-drag:none;
     }
-    .lightbox.active img{
-      opacity:1;
-    }
-    .lightbox img.is-fading{
-      opacity:0;
-    }
+    .lightbox.active img{opacity:1;}
+    .lightbox img.is-fading{opacity:0;}
 
-    /* 横屏更贴合 */
     @media (orientation: landscape){
-      .lb-stage{
-        width:94vw;
-        height:84vh;
-      }
-      .lb-nav{ bottom:12px; }
-      .lb-ui{ top:10px; }
+      .lb-stage{width:94vw; height:84vh;}
+      .lb-nav{bottom:12px;}
+      .lb-ui{top:10px;}
     }
-
   </style>
 </head>
 
 <body>
-  <!-- Top bar -->
   <div class="topbar">
     <div class="wrap">
       <div class="inner">
@@ -331,7 +295,6 @@
   </div>
 
   <main class="wrap">
-    <!-- Hero -->
     <section class="hero">
       <div class="heroInner">
         <div class="heroCopy">
@@ -350,7 +313,6 @@
       <div class="divider"></div>
     </section>
 
-    <!-- Work -->
     <section id="work">
       <div class="sectionTitle">
         <h2>Selected Work</h2>
@@ -360,135 +322,78 @@
       <div class="grid">
         <div class="card" data-index="0">
           <div class="thumb"><img src="portfolio.jpg" alt="Project 1"></div>
-          <div class="meta">
-            <div class="tag">Portfolio</div>
-            <div class="title">Graphic Design Portfolio</div>
-            <div class="desc">Portfolio cover and title page.</div>
-          </div>
+          <div class="meta"><div class="tag">Portfolio</div><div class="title">Graphic Design Portfolio</div><div class="desc">Portfolio cover and title page.</div></div>
         </div>
 
         <div class="card" data-index="1">
           <div class="thumb"><img src="portfolio2.jpg" alt="Project 2"></div>
-          <div class="meta">
-            <div class="tag">Introduction</div>
-            <div class="title">About the Designer</div>
-            <div class="desc">Personal introduction and profile photo.</div>
-          </div>
+          <div class="meta"><div class="tag">Introduction</div><div class="title">About the Designer</div><div class="desc">Personal introduction and profile photo.</div></div>
         </div>
 
         <div class="card" data-index="2">
           <div class="thumb"><img src="portfolio3.jpg" alt="Project 3"></div>
-          <div class="meta">
-            <div class="tag">Brand Identity</div>
-            <div class="title">Creative Studio Identity</div>
-            <div class="desc">Logo, letterhead, envelope, and business card.</div>
-          </div>
+          <div class="meta"><div class="tag">Brand Identity</div><div class="title">Creative Studio Identity</div><div class="desc">Logo, letterhead, envelope, and business card.</div></div>
         </div>
 
         <div class="card" data-index="3">
           <div class="thumb"><img src="portfolio4.jpg" alt="Project 4"></div>
-          <div class="meta">
-            <div class="tag">Brand Identity</div>
-            <div class="title">Ventuno Coffee / Dessert Brand</div>
-            <div class="desc">Logo, cup, carrier and box.</div>
-          </div>
+          <div class="meta"><div class="tag">Brand Identity</div><div class="title">Ventuno Coffee / Dessert Brand</div><div class="desc">Logo, cup, carrier and box.</div></div>
         </div>
 
         <div class="card" data-index="4">
           <div class="thumb"><img src="portfolio5.jpg" alt="Project 5"></div>
-          <div class="meta">
-            <div class="tag">Brand Identity</div>
-            <div class="title">Ventuno Coffee / Dessert Brand</div>
-            <div class="desc">Visual system for coffee / dessert brand.</div>
-          </div>
+          <div class="meta"><div class="tag">Brand Identity</div><div class="title">Ventuno Coffee / Dessert Brand</div><div class="desc">Visual system for coffee / dessert brand.</div></div>
         </div>
 
         <div class="card" data-index="5">
           <div class="thumb"><img src="portfolio6.jpg" alt="Project 6"></div>
-          <div class="meta">
-            <div class="tag">Brand Identity</div>
-            <div class="title">La Pasteria Restaurant Brand</div>
-            <div class="desc">Logo, menu, print, and storefront design.</div>
-          </div>
+          <div class="meta"><div class="tag">Brand Identity</div><div class="title">La Pasteria Restaurant Brand</div><div class="desc">Logo, menu, print, and storefront design.</div></div>
         </div>
 
         <div class="card" data-index="6">
           <div class="thumb"><img src="portfolio7.jpg" alt="Project 7"></div>
-          <div class="meta">
-            <div class="tag">Poster</div>
-            <div class="title">Salon Moto Montréal</div>
-            <div class="desc">Event poster and billboard design.</div>
-          </div>
+          <div class="meta"><div class="tag">Poster</div><div class="title">Salon Moto Montréal</div><div class="desc">Event poster and billboard design.</div></div>
         </div>
 
         <div class="card" data-index="7">
           <div class="thumb"><img src="portfolio8.jpg" alt="Project 8"></div>
-          <div class="meta">
-            <div class="tag">Print</div>
-            <div class="title">Salon Moto Montréal Tickets / Brochure</div>
-            <div class="desc">Ticket layout with pricing and barcode. / Trifold brochure with schedule and exhibitors.</div>
-          </div>
+          <div class="meta"><div class="tag">Print</div><div class="title">Salon Moto Montréal Tickets / Brochure</div><div class="desc">Ticket layout with pricing and barcode. / Trifold brochure with schedule and exhibitors.</div></div>
         </div>
 
         <div class="card" data-index="8">
           <div class="thumb"><img src="portfolio9.jpg" alt="Project 9"></div>
-          <div class="meta">
-            <div class="tag">Stationery</div>
-            <div class="title">Wedding Invitation Suite</div>
-            <div class="desc">Invitations, menu, seating chart, and cards.</div>
-          </div>
+          <div class="meta"><div class="tag">Stationery</div><div class="title">Wedding Invitation Suite</div><div class="desc">Invitations, menu, seating chart, and cards.</div></div>
         </div>
 
         <div class="card" data-index="9">
           <div class="thumb"><img src="portfolio10.jpg" alt="Project 10"></div>
-          <div class="meta">
-            <div class="tag">Print</div>
-            <div class="title">Calendar</div>
-            <div class="desc">Monthly calendar layout and print design.</div>
-          </div>
+          <div class="meta"><div class="tag">Print</div><div class="title">Calendar</div><div class="desc">Monthly calendar layout and print design.</div></div>
         </div>
 
         <div class="card" data-index="10">
           <div class="thumb"><img src="portfolio11.jpg" alt="Project 11"></div>
-          <div class="meta">
-            <div class="tag">Web</div>
-            <div class="title">Website Design</div>
-            <div class="desc">Desktop and mobile website layouts.</div>
-          </div>
+          <div class="meta"><div class="tag">Web</div><div class="title">Website Design</div><div class="desc">Desktop and mobile website layouts.</div></div>
         </div>
 
         <div class="card" data-index="11">
           <div class="thumb"><img src="portfolio12.jpg" alt="Project 12"></div>
-          <div class="meta">
-            <div class="tag">Social Media</div>
-            <div class="title">Jeep Campaign</div>
-            <div class="desc">Instagram carousel and post designs.</div>
-          </div>
+          <div class="meta"><div class="tag">Social Media</div><div class="title">Jeep Campaign</div><div class="desc">Instagram carousel and post designs.</div></div>
         </div>
 
         <div class="card" data-index="12">
           <div class="thumb"><img src="portfolio13.jpg" alt="Project 13"></div>
-          <div class="meta">
-            <div class="tag">End</div>
-            <div class="title">Thank You</div>
-            <div class="desc">Portfolio closing page.</div>
-          </div>
+          <div class="meta"><div class="tag">End</div><div class="title">Thank You</div><div class="desc">Portfolio closing page.</div></div>
         </div>
 
         <div class="card" data-index="13">
           <div class="thumb"><img src="portfolio14.jpg" alt="Project 14"></div>
-          <div class="meta">
-            <div class="tag">Cover</div>
-            <div class="title">Portfolio Back Cover</div>
-            <div class="desc">Contact information and branding.</div>
-          </div>
+          <div class="meta"><div class="tag">Cover</div><div class="title">Portfolio Back Cover</div><div class="desc">Contact information and branding.</div></div>
         </div>
       </div>
     </section>
 
     <div class="divider"></div>
 
-    <!-- About + Contact -->
     <section class="twoCol">
       <div class="box" id="about">
         <h3>About</h3>
@@ -513,12 +418,10 @@
       </div>
     </section>
 
-    <footer>
-      © <span id="y"></span> Dong Li · Portfolio
-    </footer>
+    <footer>© <span id="y"></span> Dong Li · Portfolio</footer>
   </main>
 
-  <!-- ✅ Lightbox -->
+  <!-- Lightbox -->
   <div class="lightbox" id="lightbox" aria-hidden="true">
     <div class="lb-ui">
       <div class="lb-left">
@@ -539,25 +442,11 @@
   </div>
 
   <script>
-  // 年份
   document.getElementById('y').textContent = new Date().getFullYear();
 
-  // ✅ 大图顺序
   const images = [
-    "portfolio.jpg",
-    "portfolio2.jpg",
-    "portfolio3.jpg",
-    "portfolio4.jpg",
-    "portfolio5.jpg",
-    "portfolio6.jpg",
-    "portfolio7.jpg",
-    "portfolio8.jpg",
-    "portfolio9.jpg",
-    "portfolio10.jpg",
-    "portfolio11.jpg",
-    "portfolio12.jpg",
-    "portfolio13.jpg",
-    "portfolio14.jpg"
+    "portfolio.jpg","portfolio2.jpg","portfolio3.jpg","portfolio4.jpg","portfolio5.jpg","portfolio6.jpg","portfolio7.jpg",
+    "portfolio8.jpg","portfolio9.jpg","portfolio10.jpg","portfolio11.jpg","portfolio12.jpg","portfolio13.jpg","portfolio14.jpg"
   ];
 
   const lightbox = document.getElementById("lightbox");
@@ -570,17 +459,17 @@
 
   let current = 0;
 
-  // ✅ Zoom + Pan state
+  // Zoom + Pan
   let scale = 1;
   const MIN_SCALE = 1;
   const MAX_SCALE = 3;
 
-  let tx = 0, ty = 0;        // 平移
-  let baseW = 0, baseH = 0;  // contain 适配后的基础显示尺寸
+  let tx = 0, ty = 0;
+  let baseW = 0, baseH = 0;
 
-  // ✅ “到边缘停留一下再翻页” 状态
-  let edgePrimedDir = 0;   // -1:准备下一张  +1:准备上一张  0:没准备
-  let edgePrimedAt = 0;    // 准备时间戳
+  // edge prime (放大后翻页：先 prime，再第二次甩动/拖远翻页)
+  let edgePrimedDir = 0; // -1 next, +1 prev, 0 none
+  let edgePrimedAt = 0;
 
   function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
 
@@ -605,7 +494,6 @@
     baseH = h;
   }
 
-  // ✅ clampPan 返回边界，便于判断是否在边缘
   function clampPan(){
     const stageW = lbStage.clientWidth;
     const stageH = lbStage.clientHeight;
@@ -636,39 +524,19 @@
     applyTransform();
   }
 
-  // ✅ HAPTIC（轻微震动：支持就震，不支持就跳过）
   function hapticTick(){
-    try{
-      if(navigator.vibrate) navigator.vibrate(10);
-    }catch(e){}
+    try{ if(navigator.vibrate) navigator.vibrate(10); }catch(e){}
   }
-    function showEdgeGap(dir){
-  // dir: -1 下一张（左边缘），+1 上一张（右边缘）
-  lbStage.classList.remove("edge-left","edge-right");
-  lbStage.classList.add(dir === -1 ? "edge-left" : "edge-right");
 
-  // 轻微停留一下后消失（像相册）
-  clearTimeout(showEdgeGap._t);
-  showEdgeGap._t = setTimeout(()=>{
-    lbStage.classList.remove("edge-left","edge-right");
-  }, 180);
-}
-
-
-  // ✅ 双击自动 fit：横图 fit width，竖图 fit height
+  // 双击 fit：横图 fit width，竖图 fit height
   function zoomFitScreen(){
-    // 必须在图片已加载并且 baseW/baseH 已算出后才准确
     const stageW = lbStage.clientWidth;
     const stageH = lbStage.clientHeight;
-
     const iw = lbImg.naturalWidth || 1;
     const ih = lbImg.naturalHeight || 1;
     const isLandscape = iw >= ih;
 
-    // baseW/baseH 是 contain 下的尺寸，所以 scale= stage/base 就是“铺满某一边”
     let target = isLandscape ? (stageW / baseW) : (stageH / baseH);
-
-    // 防止超大
     target = clamp(target, MIN_SCALE, MAX_SCALE);
 
     tx = 0; ty = 0;
@@ -678,10 +546,8 @@
   }
 
   function render(){
-    // 切图时清空“准备翻页”状态
     edgePrimedDir = 0; edgePrimedAt = 0;
 
-    // 换图先复位（等图片 load 后再算 base size）
     resetView();
 
     lbImg.classList.add("is-fading");
@@ -694,10 +560,7 @@
       computeBaseSize();
       clampPan();
       applyTransform();
-
-      requestAnimationFrame(() => {
-        lbImg.classList.remove("is-fading");
-      });
+      requestAnimationFrame(()=> lbImg.classList.remove("is-fading"));
     };
   }
 
@@ -716,7 +579,6 @@
     edgePrimedDir = 0; edgePrimedAt = 0;
   }
 
-  // 打开
   document.querySelectorAll(".card[data-index]").forEach(card=>{
     card.addEventListener("click", (e)=>{
       e.preventDefault();
@@ -724,19 +586,15 @@
     });
   });
 
-  // 下一项 / 上一项
   nextBtn.addEventListener("click", ()=>{ if(current < images.length - 1){ current++; render(); }});
   prevBtn.addEventListener("click", ()=>{ if(current > 0){ current--; render(); }});
-
-  // 关闭
   closeBtn.addEventListener("click", closeLB);
 
-  // 点黑色背景关闭
+  // 点黑色背景关闭（点 stage 不关）
   lightbox.addEventListener("click", (e)=>{
     if(e.target === lightbox) closeLB();
   });
 
-  // 键盘
   window.addEventListener("keydown", (e)=>{
     if(!lightbox.classList.contains("active")) return;
     if(e.key === "ArrowRight") nextBtn.click();
@@ -744,15 +602,7 @@
     if(e.key === "Escape") closeLB();
   });
 
-  /* =========================
-     ✅ Touch Gestures (Upgraded)
-     - pinch: zoom
-     - pan: scale>1 单指拖动
-     - flip: scale>1 到边缘“先准备(震动+停留)”，再“快速甩动”才翻页
-     - swipe: scale==1 左右翻页，下滑关闭
-     - double tap: fit screen（横图fit width / 竖图fit height）
-  ========================== */
-
+  /* ===== Touch Gestures ===== */
   let tracking = false;
   let startX = 0, startY = 0;
   let dx = 0, dy = 0;
@@ -765,7 +615,6 @@
   let panStartX = 0, panStartY = 0;
   let panStartTx = 0, panStartTy = 0;
 
-  // ✅ 用时间算速度（甩动阈值）
   let gestureStartTime = 0;
 
   const SWIPE_X = 45;
@@ -777,14 +626,13 @@
     return Math.hypot(x, y);
   }
 
-  // 双击：fit screen
+  // 双击（用 click/tap 兼容）
   let lastTap = 0;
   function onTap(){
     if(!lightbox.classList.contains("active")) return;
     const now = Date.now();
     if(now - lastTap < 280){
       if(scale === 1){
-        // 先确保 base 尺寸正确（防止极少数情况下还没load）
         if(!baseW || !baseH) computeBaseSize();
         zoomFitScreen();
       }else{
@@ -810,6 +658,8 @@
     if(e.touches.length === 1){
       const t = e.touches[0];
 
+      dx = 0; dy = 0;
+
       if(scale > 1){
         isPanning = true;
         tracking = false;
@@ -817,13 +667,11 @@
         panStartY = t.clientY;
         panStartTx = tx;
         panStartTy = ty;
-        dx = 0; dy = 0;
       }else{
         tracking = true;
         isPanning = false;
         startX = t.clientX;
         startY = t.clientY;
-        dx = 0; dy = 0;
       }
 
       isPinching = false;
@@ -849,7 +697,7 @@
       const mx = t.clientX - panStartX;
       const my = t.clientY - panStartY;
 
-      dx = mx; // 给 touchend 算速度 & 方向
+      dx = mx;
       dy = my;
 
       tx = panStartTx + mx;
@@ -869,153 +717,131 @@
     }
   }
 
- function onTouchEnd(){
-  if(!lightbox.classList.contains("active")) return;
+  function onTouchEnd(){
+    if(!lightbox.classList.contains("active")) return;
 
-  // pinch end
-  if(isPinching){
-    isPinching = false;
-    return;
-  }
+    // pinch end
+    if(isPinching){
+      isPinching = false;
+      return;
+    }
 
-  const dt = Math.max(1, Date.now() - gestureStartTime); // ms
-  const vx = dx / dt; // px/ms
+    const dt = Math.max(1, Date.now() - gestureStartTime);
+    const vx = dx / dt;
 
-  // ✅ 放大后：pan 结束 → 到边缘 “先准备，再(快甩/拖远)翻页”
-  if(isPanning){
-    isPanning = false;
+    // ====== 放大后：pan end ======
+    if(isPanning){
+      isPanning = false;
+
+      const absX = Math.abs(dx);
+      const absY = Math.abs(dy);
+
+      // 下滑关闭（放大也支持）
+      if(dy > SWIPE_Y && absY > absX){
+        edgePrimedDir = 0; edgePrimedAt = 0;
+        closeLB();
+        return;
+      }
+
+      const PAN_SWIPE_X  = 55;   // 进入“准备”的距离
+      const PRIME_WINDOW = 800;  // 第二次有效窗口
+      const VELOCITY_TH  = 0.35; // 甩动速度阈值
+      const FAR_X        = 80;   // 第二次拖动距离（更容易翻页）
+
+      const { maxX } = clampPan();
+      const edgePad = 2;
+
+      const atLeftEdge  = (tx <= -maxX + edgePad);
+      const atRightEdge = (tx >=  maxX - edgePad);
+
+      // 想去下一张：向左滑（dx<0）且在左边缘（tx≈-maxX）
+      if(absX > PAN_SWIPE_X && absX > absY && dx < 0 && atLeftEdge && current < images.length - 1){
+        const now = Date.now();
+
+        // 第一次：只准备 + 轻震
+        if(edgePrimedDir !== -1 || (now - edgePrimedAt) > PRIME_WINDOW){
+          edgePrimedDir = -1;
+          edgePrimedAt = now;
+          hapticTick();
+          return;
+        }
+
+        // 第二次：更容易触发（不用滑很多下）
+        const FAST = Math.abs(vx) >= VELOCITY_TH;
+        const FAR  = absX >= FAR_X;
+
+        if(FAST || FAR){
+          edgePrimedDir = 0; edgePrimedAt = 0;
+          current++;
+          render();
+        }else{
+          edgePrimedAt = now;
+        }
+        return;
+      }
+
+      // 想去上一张：向右滑（dx>0）且在右边缘（tx≈+maxX）
+      if(absX > PAN_SWIPE_X && absX > absY && dx > 0 && atRightEdge && current > 0){
+        const now = Date.now();
+
+        if(edgePrimedDir !== 1 || (now - edgePrimedAt) > PRIME_WINDOW){
+          edgePrimedDir = 1;
+          edgePrimedAt = now;
+          hapticTick();
+          return;
+        }
+
+        const FAST = Math.abs(vx) >= VELOCITY_TH;
+        const FAR  = absX >= FAR_X;
+
+        if(FAST || FAR){
+          edgePrimedDir = 0; edgePrimedAt = 0;
+          current--;
+          render();
+        }else{
+          edgePrimedAt = now;
+        }
+        return;
+      }
+
+      // 其它情况：清空 primed
+      edgePrimedDir = 0; edgePrimedAt = 0;
+      return;
+    }
+
+    // ====== 未放大：swipe end（你之前这里被括号吞掉了） ======
+    if(!tracking) return;
+    tracking = false;
 
     const absX = Math.abs(dx);
     const absY = Math.abs(dy);
 
-    // 下滑关闭（放大也支持）
     if(dy > SWIPE_Y && absY > absX){
-      edgePrimedDir = 0; edgePrimedAt = 0;
       closeLB();
       return;
     }
 
-    // 只处理明显水平动作（更像相册：更不敏感，但不费劲）
-    const PAN_SWIPE_X = 55;      // ✅ 原 90：更容易进入“准备”
-    const PRIME_WINDOW = 800;
-    const VELOCITY_TH = 0.35;    // ✅ 原 0.55：更容易“甩动”
-    const FAR_X = 90;           // ✅ 原 160：拖远也能翻页
-
-    const { maxX } = clampPan();
-    const edgePad = 18;
-
-    const atLeftEdge  = (tx <= -maxX + edgePad);
-    const atRightEdge = (tx >=  maxX - edgePad);
-
-  // ========= 方向说明 =========
-// dx < 0：手指向左 → 想看“下一张”
-// dx > 0：手指向右 → 想看“上一张”
-// 缝隙光显示在哪一侧 = 手指滑动方向
-// dx < 0 → 左边亮（-1）
-// dx > 0 → 右边亮（+1）
-
-// 想去下一张：向左滑（dx<0）且在左边缘
-if(absX > PAN_SWIPE_X && absX > absY && dx < 0 && atLeftEdge && current < images.length - 1){
-  const now = Date.now();
-
-  // 第一次：只准备（停一下 + 缝隙光 + 轻微震动）
-  if(edgePrimedDir !== -1 || (now - edgePrimedAt) > PRIME_WINDOW){
-    edgePrimedDir = -1;
-    edgePrimedAt = now;
-    hapticTick();
-    return;
-  }
-
-  // 第二次：快甩 或 拖得够远 就翻页
-  const FAST = Math.abs(vx) >= VELOCITY_TH;
-  const FAR  = absX >= FAR_X;
-
-  if(FAST || FAR){
-    edgePrimedDir = 0; 
-    edgePrimedAt = 0;
-    current++;
-    render();
-  }else{
-    // ✅ 没达到条件：保留 primed，让你再滑一下就行（更像相册）
-    edgePrimedAt = now;
-  }
-  return;
-}
-
-// 想去上一张：向右滑（dx>0）且在右边缘
-if(absX > PAN_SWIPE_X && absX > absY && dx > 0 && atRightEdge && current > 0){
-  const now = Date.now();
-
-  if(edgePrimedDir !== 1 || (now - edgePrimedAt) > PRIME_WINDOW){
-    edgePrimedDir = 1;
-    edgePrimedAt = now;
-    hapticTick();
-    return;
-  }
-
-  const FAST = Math.abs(vx) >= VELOCITY_TH;
-  const FAR  = absX >= FAR_X;
-
-  if(FAST || FAR){
-    edgePrimedDir = 0; 
-    edgePrimedAt = 0;
-    current--;
-    render();
-  }else{
-    edgePrimedAt = now;
-  }
-  return;
-}
-
-// 其它情况：不翻页，清空准备
-edgePrimedDir = 0; 
-edgePrimedAt = 0;
-return;
-}
-
-
-// 其它情况：不翻页，清空准备
-edgePrimedDir = 0; edgePrimedAt = 0;
-return;
-
-
-  // ✅ 未放大：原来的 swipe
-  if(!tracking) return;
-  tracking = false;
-
-  const absX = Math.abs(dx);
-  const absY = Math.abs(dy);
-
-  if(dy > SWIPE_Y && absY > absX){
-    closeLB();
-    return;
-  }
-
-  if(scale === 1 && absX > SWIPE_X && absX > absY){
-    if(dx < 0 && current < images.length - 1){
-      current++; render();
-    }else if(dx > 0 && current > 0){
-      current--; render();
+    if(scale === 1 && absX > SWIPE_X && absX > absY){
+      if(dx < 0 && current < images.length - 1){
+        current++; render();
+      }else if(dx > 0 && current > 0){
+        current--; render();
+      }
     }
   }
-}
 
-
-  // 绑定到 stage
   lbStage.addEventListener("touchstart", onTouchStart, {passive:false});
-  lbStage.addEventListener("touchmove", onTouchMove, {passive:false});
-  lbStage.addEventListener("touchend", onTouchEnd, {passive:true});
-  lbStage.addEventListener("touchcancel", onTouchEnd, {passive:true});
+  lbStage.addEventListener("touchmove",  onTouchMove,  {passive:false});
+  lbStage.addEventListener("touchend",   onTouchEnd,   {passive:true});
+  lbStage.addEventListener("touchcancel",onTouchEnd,   {passive:true});
   lbStage.addEventListener("click", onTap);
 
-  // 横竖屏/尺寸变化：重新算边界，避免出界
   window.addEventListener("resize", ()=>{
     if(!lightbox.classList.contains("active")) return;
     computeBaseSize();
     clampPan();
     applyTransform();
   });
-</script>
-
+  </script>
 </body>
 </html>
