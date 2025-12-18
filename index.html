@@ -50,7 +50,7 @@
     nav{display:flex; gap:18px; color:var(--muted); font-weight:600; font-size:14px}
     nav a:hover{color:var(--text)}
 
-    /* ===== HERO ===== */
+   /* ===== HERO (Green cover style) ===== */
     .hero{
       position:relative;
       margin-top:18px;
@@ -107,11 +107,13 @@
       color:#1f9d62;
       border-color:#fff;
     }
-    .hero .btn:hover{ transform:translateY(-1px); }
+    .hero .btn:hover{transform:translateY(-1px);}
+
     .hero .divider{
       border-top:1px solid rgba(255,255,255,.35);
       margin:0;
     }
+
     @media (max-width: 980px){
       .heroInner{
         grid-template-columns:1fr;
@@ -199,7 +201,7 @@
       nav{gap:12px}
     }
 
-    /* ===== Lightbox (one-file next/prev) ===== */
+    /* ===== Lightbox ===== */
     .lightbox{
       position:fixed;
       inset:0;
@@ -213,7 +215,7 @@
       opacity:0;
       transition:opacity .22s ease, background .22s ease;
 
-      /* ✅ 允许我们接管滑动手势 */
+      /* ✅ 允许我们接管手势（捏合/滑动） */
       touch-action:none;
     }
     .lightbox.active{
@@ -222,27 +224,36 @@
       background:rgba(0,0,0,.88);
     }
 
+    /* ✅ 新增：stage 容器用于“适配屏幕 + 捏合缩放” */
+    .lb-stage{
+      width:92vw;
+      height:88vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      border-radius:14px;
+      touch-action:none;
+    }
+
     .lightbox img{
-      max-width:92vw;
-      max-height:88vh;
+      max-width:100%;
+      max-height:100%;
+      width:auto;
+      height:auto;
       border-radius:14px;
       background:#111;
       display:block;
 
       opacity:0;
-      transform:scale(.985);
       transition:opacity .22s ease, transform .22s ease;
-    }
-    .lightbox.active img{
-      opacity:1;
-      transform:scale(1);
-    }
 
-    /* 切换图片时淡入 */
-    .lightbox img.is-fading{
-      opacity:0;
-      transform:scale(.99);
+      /* ✅ 缩放用 transform */
+      transform:scale(1);
+      transform-origin:center center;
     }
+    .lightbox.active img{opacity:1;}
+    .lightbox img.is-fading{opacity:0;}
 
     .lb-ui{
       position:absolute;
@@ -278,14 +289,14 @@
       gap:12px;
     }
 
-    /* ✅ 横屏优化（不能强制“自动旋转”，但能让横屏更舒服） */
+    /* ✅ 横屏时：图片更贴合屏幕 */
     @media (orientation: landscape){
-      .lightbox img{
-        max-width:90vw;
-        max-height:82vh;
+      .lb-stage{
+        width:94vw;
+        height:84vh;
       }
-      .lb-nav{ bottom:12px; }
-      .lb-ui{ top:10px; }
+      .lb-nav{bottom:12px;}
+      .lb-ui{top:10px;}
     }
   </style>
 </head>
@@ -496,7 +507,7 @@
     </footer>
   </main>
 
-  <!-- Lightbox -->
+  <!-- ✅ Lightbox (one-file viewer) -->
   <div class="lightbox" id="lightbox" aria-hidden="true">
     <div class="lb-ui">
       <div class="lb-left">
@@ -506,7 +517,10 @@
       <div class="lb-right"></div>
     </div>
 
-    <img id="lb-img" src="" alt="Large view" />
+    <!-- ✅ 改：加 stage 包一层，方便适配屏幕 + 捏合缩放 -->
+    <div class="lb-stage" id="lb-stage" aria-label="Image viewer">
+      <img id="lb-img" src="" alt="Large view" draggable="false" />
+    </div>
 
     <div class="lb-nav">
       <button class="lb-btn" id="lb-prev" type="button">← Prev</button>
@@ -518,7 +532,7 @@
     // 年份
     document.getElementById('y').textContent = new Date().getFullYear();
 
-    // 大图顺序
+    // ✅ 大图顺序（下一项就是这个顺序）
     const images = [
       "portfolio.jpg",
       "portfolio2.jpg",
@@ -538,6 +552,7 @@
 
     const lightbox = document.getElementById("lightbox");
     const lbImg = document.getElementById("lb-img");
+    const lbStage = document.getElementById("lb-stage");
     const lbCount = document.getElementById("lb-count");
     const prevBtn = document.getElementById("lb-prev");
     const nextBtn = document.getElementById("lb-next");
@@ -545,7 +560,22 @@
 
     let current = 0;
 
+    // ✅ Zoom state
+    let scale = 1;
+    const MIN_SCALE = 1;
+    const MAX_SCALE = 3;
+
+    function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+    function setScale(next){
+      scale = clamp(next, MIN_SCALE, MAX_SCALE);
+      lbImg.style.transform = `scale(${scale})`;
+    }
+    function resetZoom(){ setScale(1); }
+
     function render(){
+      // 换图前先重置缩放
+      resetZoom();
+
       lbImg.classList.add("is-fading");
       lbImg.src = images[current];
       lbCount.textContent = `${current + 1} / ${images.length}`;
@@ -570,6 +600,7 @@
       lightbox.classList.remove("active");
       lightbox.setAttribute("aria-hidden", "true");
       lbImg.src = "";
+      resetZoom();
     }
 
     // 打开
@@ -587,7 +618,7 @@
     // 关闭
     closeBtn.addEventListener("click", closeLB);
 
-    // 点黑色背景关闭
+    // 点黑色背景关闭（点 stage 不关）
     lightbox.addEventListener("click", (e)=>{
       if(e.target === lightbox) closeLB();
     });
@@ -602,50 +633,104 @@
 
     /* =========================
        ✅ Touch Gestures (Mobile)
-       - Swipe left/right: prev/next
-       - Swipe down: close
+       - 1 finger: swipe left/right (prev/next), swipe down (close)
+       - 2 fingers: pinch to zoom
+       - double tap: zoom toggle
     ========================== */
+
+    let tracking = false;
     let startX = 0, startY = 0;
     let dx = 0, dy = 0;
-    let tracking = false;
 
-    const SWIPE_X = 45;   // 横向阈值
-    const SWIPE_Y = 70;   // 下滑关闭阈值
+    let isPinching = false;
+    let startDist = 0;
+    let startScale = 1;
+
+    const SWIPE_X = 45;
+    const SWIPE_Y = 70;
+
+    function getTouchDist(t1, t2){
+      const x = t2.clientX - t1.clientX;
+      const y = t2.clientY - t1.clientY;
+      return Math.hypot(x, y);
+    }
+
+    // 双击放大/还原
+    let lastTap = 0;
+    function onTap(){
+      if(!lightbox.classList.contains("active")) return;
+      const now = Date.now();
+      if(now - lastTap < 280){
+        if(scale === 1) setScale(2);
+        else resetZoom();
+      }
+      lastTap = now;
+    }
 
     function onTouchStart(e){
       if(!lightbox.classList.contains("active")) return;
-      const t = e.touches[0];
-      startX = t.clientX;
-      startY = t.clientY;
-      dx = 0; dy = 0;
-      tracking = true;
+
+      if(e.touches.length === 1){
+        const t = e.touches[0];
+        startX = t.clientX;
+        startY = t.clientY;
+        dx = 0; dy = 0;
+        tracking = true;
+        isPinching = false;
+        return;
+      }
+
+      if(e.touches.length === 2){
+        isPinching = true;
+        tracking = false;
+        startDist = getTouchDist(e.touches[0], e.touches[1]);
+        startScale = scale;
+      }
     }
 
     function onTouchMove(e){
-      if(!tracking) return;
-      const t = e.touches[0];
-      dx = t.clientX - startX;
-      dy = t.clientY - startY;
+      if(!lightbox.classList.contains("active")) return;
 
-      // 我们接管手势，避免页面跟着滚动/回弹
-      e.preventDefault();
+      // 2 指捏合缩放
+      if(isPinching && e.touches.length === 2){
+        e.preventDefault();
+        const dist = getTouchDist(e.touches[0], e.touches[1]);
+        const ratio = dist / startDist;
+        setScale(startScale * ratio);
+        return;
+      }
+
+      // 1 指滑动/下滑关闭
+      if(tracking && e.touches.length === 1){
+        e.preventDefault();
+        const t = e.touches[0];
+        dx = t.clientX - startX;
+        dy = t.clientY - startY;
+      }
     }
 
     function onTouchEnd(){
+      if(!lightbox.classList.contains("active")) return;
+
+      if(isPinching){
+        isPinching = false;
+        return;
+      }
+
       if(!tracking) return;
       tracking = false;
 
       const absX = Math.abs(dx);
       const absY = Math.abs(dy);
 
-      // 下滑关闭（优先判断）
+      // 下滑关闭
       if(dy > SWIPE_Y && absY > absX){
         closeLB();
         return;
       }
 
-      // 左右切换
-      if(absX > SWIPE_X && absX > absY){
+      // 左右切换：建议在未放大时触发（避免看细节时误切换）
+      if(scale === 1 && absX > SWIPE_X && absX > absY){
         if(dx < 0 && current < images.length - 1){
           current++; render();
         }else if(dx > 0 && current > 0){
@@ -654,11 +739,12 @@
       }
     }
 
-    // 绑定到 lightbox（只在打开时生效）
-    lightbox.addEventListener("touchstart", onTouchStart, {passive:false});
-    lightbox.addEventListener("touchmove", onTouchMove, {passive:false});
-    lightbox.addEventListener("touchend", onTouchEnd, {passive:true});
-    lightbox.addEventListener("touchcancel", onTouchEnd, {passive:true});
+    // 绑定到 stage（更稳）
+    lbStage.addEventListener("touchstart", onTouchStart, {passive:false});
+    lbStage.addEventListener("touchmove", onTouchMove, {passive:false});
+    lbStage.addEventListener("touchend", onTouchEnd, {passive:true});
+    lbStage.addEventListener("touchcancel", onTouchEnd, {passive:true});
+    lbStage.addEventListener("click", onTap);
   </script>
 </body>
 </html>
