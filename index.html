@@ -597,19 +597,21 @@
       baseH = h;
     }
 
-    function clampPan(){
-      const stageW = lbStage.clientWidth;
-      const stageH = lbStage.clientHeight;
+   function clampPan(){
+  const stageW = lbStage.clientWidth;
+  const stageH = lbStage.clientHeight;
 
-      const scaledW = baseW * scale;
-      const scaledH = baseH * scale;
+  const scaledW = baseW * scale;
+  const scaledH = baseH * scale;
 
-      const maxX = Math.max(0, (scaledW - stageW) / 2);
-      const maxY = Math.max(0, (scaledH - stageH) / 2);
+  const maxX = Math.max(0, (scaledW - stageW) / 2);
+  const maxY = Math.max(0, (scaledH - stageH) / 2);
 
-      tx = clamp(tx, -maxX, maxX);
-      ty = clamp(ty, -maxY, maxY);
-    }
+  tx = clamp(tx, -maxX, maxX);
+  ty = clamp(ty, -maxY, maxY);
+
+  return { maxX, maxY };
+}
 
     function setScale(next){
       scale = clamp(next, MIN_SCALE, MAX_SCALE);
@@ -772,73 +774,113 @@
     }
 
     function onTouchMove(e){
-      if(!lightbox.classList.contains("active")) return;
+  if(!lightbox.classList.contains("active")) return;
 
-      // pinch
-      if(isPinching && e.touches.length === 2){
-        e.preventDefault();
-        const dist = getTouchDist(e.touches[0], e.touches[1]);
-        const ratio = dist / startDist;
-        setScale(startScale * ratio);
-        return;
-      }
+  // pinch
+  if(isPinching && e.touches.length === 2){
+    e.preventDefault();
+    const dist = getTouchDist(e.touches[0], e.touches[1]);
+    const ratio = dist / startDist;
+    setScale(startScale * ratio);
+    return;
+  }
 
-      // pan
-      if(isPanning && e.touches.length === 1){
-        e.preventDefault();
-        const t = e.touches[0];
-        const mx = t.clientX - panStartX;
-        const my = t.clientY - panStartY;
-        tx = panStartTx + mx;
-        ty = panStartTy + my;
-        clampPan();
-        applyTransform();
-        return;
-      }
+  // pan (scale > 1)
+  if(isPanning && e.touches.length === 1){
+    e.preventDefault();
+    const t = e.touches[0];
+    const mx = t.clientX - panStartX;
+    const my = t.clientY - panStartY;
 
-      // swipe (only scale==1)
-      if(tracking && e.touches.length === 1){
-        e.preventDefault();
-        const t = e.touches[0];
-        dx = t.clientX - startX;
-        dy = t.clientY - startY;
-      }
-    }
+    // ✅ 记录本次手势总体位移：用于 touchend 判断是否要切图
+    dx = mx;
+    dy = my;
+
+    tx = panStartTx + mx;
+    ty = panStartTy + my;
+
+    clampPan();
+    applyTransform();
+    return;
+  }
+
+  // swipe (only scale==1)
+  if(tracking && e.touches.length === 1){
+    e.preventDefault();
+    const t = e.touches[0];
+    dx = t.clientX - startX;
+    dy = t.clientY - startY;
+  }
+}
 
     function onTouchEnd(){
-      if(!lightbox.classList.contains("active")) return;
+  if(!lightbox.classList.contains("active")) return;
 
-      if(isPinching){
-        isPinching = false;
+  if(isPinching){
+    isPinching = false;
+    return;
+  }
+
+  // ✅ 放大后的手势结束：支持 “到边缘再滑切换”
+  if(isPanning){
+    isPanning = false;
+
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+
+    // 下滑关闭（放大也支持）
+    if(dy > SWIPE_Y && absY > absX){
+      closeLB();
+      return;
+    }
+
+    // 只有“明显水平滑动”才考虑切图
+    if(absX > SWIPE_X && absX > absY){
+      const { maxX } = clampPan(); // 得到边界
+      const edgePad = 2; // 容忍误差
+
+      const atLeftEdge  = (tx <= -maxX + edgePad);
+      const atRightEdge = (tx >=  maxX - edgePad);
+
+      // ✅ 在边缘继续往外滑：切换
+      if(dx < 0 && atLeftEdge && current < images.length - 1){
+        current++;
+        render();
         return;
       }
-
-      if(isPanning){
-        isPanning = false;
+      if(dx > 0 && atRightEdge && current > 0){
+        current--;
+        render();
         return;
-      }
-
-      if(!tracking) return;
-      tracking = false;
-
-      const absX = Math.abs(dx);
-      const absY = Math.abs(dy);
-
-      // 下滑关闭
-      if(dy > SWIPE_Y && absY > absX){
-        closeLB();
-        return;
-      }
-
-      // 左右切换
-      if(scale === 1 && absX > SWIPE_X && absX > absY){
-        if(dx < 0 && current < images.length - 1){
-          current++; render();
-        }else if(dx > 0 && current > 0){
-          current--; render();
-        }
       }
     }
+
+    // 不切图就结束（保持当前 pan 位置）
+    return;
+  }
+
+  // 未放大：原来的 swipe 逻辑
+  if(!tracking) return;
+  tracking = false;
+
+  const absX = Math.abs(dx);
+  const absY = Math.abs(dy);
+
+  // 下滑关闭
+  if(dy > SWIPE_Y && absY > absX){
+    closeLB();
+    return;
+  }
+
+  // 左右切换（scale==1）
+  if(scale === 1 && absX > SWIPE_X && absX > absY){
+    if(dx < 0 && current < images.length - 1){
+      current++; render();
+    }else if(dx > 0 && current > 0){
+      current--; render();
+    }
+  }
+}
 
     // 绑定到 stage
     lbStage.addEventListener("touchstart", onTouchStart, {passive:false});
