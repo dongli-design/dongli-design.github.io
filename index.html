@@ -260,16 +260,19 @@
 
     /* ✅ stage：负责适配屏幕/承接手势 */
     .lb-stage{
-      width:92vw;
-      height:88vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      overflow:hidden;
-      border-radius:14px;
-      touch-action:none;
-      z-index:1;
-    }
+  width:92vw;
+  height:88vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  border-radius:14px;
+  touch-action:none;
+  z-index:1;
+
+  position:relative; /* ✅ 新增：让缝隙提示层定位 */
+}
+
 
     .lightbox img{
       max-width:100%;
@@ -305,6 +308,39 @@
       .lb-nav{ bottom:12px; }
       .lb-ui{ top:10px; }
     }
+    /* ✅ “两张图之间的缝隙”提示：只在 stage 上出现，不抖图片 */
+.lb-stage::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:0;
+  transform:translateX(0);
+  transition:opacity .14s ease, transform .14s ease;
+}
+
+/* 左边缘：出现一条“缝隙光” */
+.lb-stage.edge-left::after{
+  opacity:1;
+  transform:translateX(10px); /* ✅ 像相册那样“顶住” */
+  background:
+    linear-gradient(to right,
+      rgba(255,255,255,.20),
+      rgba(255,255,255,.10) 18%,
+      rgba(255,255,255,0) 45%);
+}
+
+/* 右边缘：同理 */
+.lb-stage.edge-right::after{
+  opacity:1;
+  transform:translateX(-10px);
+  background:
+    linear-gradient(to left,
+      rgba(255,255,255,.20),
+      rgba(255,255,255,.10) 18%,
+      rgba(255,255,255,0) 45%);
+}
+
   </style>
 </head>
 
@@ -638,6 +674,18 @@
       if(navigator.vibrate) navigator.vibrate(10);
     }catch(e){}
   }
+    function showEdgeGap(dir){
+  // dir: -1 下一张（左边缘），+1 上一张（右边缘）
+  lbStage.classList.remove("edge-left","edge-right");
+  lbStage.classList.add(dir === -1 ? "edge-left" : "edge-right");
+
+  // 轻微停留一下后消失（像相册）
+  clearTimeout(showEdgeGap._t);
+  showEdgeGap._t = setTimeout(()=>{
+    lbStage.classList.remove("edge-left","edge-right");
+  }, 180);
+}
+
 
   // ✅ 双击自动 fit：横图 fit width，竖图 fit height
   function zoomFitScreen(){
@@ -898,6 +946,7 @@
           edgePrimedDir = -1;
           edgePrimedAt = now;
           hapticTick();
+          showEdgeGap(-1);   // ✅ 新增：显示“缝隙”
           return; // 停一下
         }
 
@@ -918,6 +967,7 @@
           edgePrimedDir = 1;
           edgePrimedAt = now;
           hapticTick();
+          showEdgeGap(1);    // ✅ 新增
           return;
         }
 
