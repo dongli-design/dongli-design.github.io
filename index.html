@@ -896,79 +896,83 @@
     }
 
     // 只处理明显水平动作（更像相册：更不敏感，但不费劲）
-    const PAN_SWIPE_X = 80;      // ✅ 原 90：更容易进入“准备”
+    const PAN_SWIPE_X = 55;      // ✅ 原 90：更容易进入“准备”
     const PRIME_WINDOW = 800;
-    const VELOCITY_TH = 0.45;    // ✅ 原 0.55：更容易“甩动”
-    const FAR_X = 120;           // ✅ 原 160：拖远也能翻页
+    const VELOCITY_TH = 0.35;    // ✅ 原 0.55：更容易“甩动”
+    const FAR_X = 90;           // ✅ 原 160：拖远也能翻页
 
     const { maxX } = clampPan();
-    const edgePad = 2;
+    const edgePad = 18;
 
     const atLeftEdge  = (tx <= -maxX + edgePad);
     const atRightEdge = (tx >=  maxX - edgePad);
 
-    // ========= 方向说明 =========
-    // dx < 0：手指向左 → 想看“下一张”
-    // dx > 0：手指向右 → 想看“上一张”
-    // 缝隙光显示在哪一侧 = 手指滑动方向
-    // dx < 0 → 左边亮（-1）
-    // dx > 0 → 右边亮（+1）
+   // 想去下一张：向左滑（dx<0）且在左边缘
+if(absX > PAN_SWIPE_X && absX > absY && dx < 0 && atLeftEdge && current < images.length - 1){
+  const now = Date.now();
 
-    // 想去下一张：向左滑（dx<0）且在左边缘
-    if(absX > PAN_SWIPE_X && absX > absY && dx < 0 && atLeftEdge && current < images.length - 1){
-      const now = Date.now();
-
-      // 第一次：只准备（停一下 + 缝隙光 + 轻微震动）
-      if(edgePrimedDir !== -1 || (now - edgePrimedAt) > PRIME_WINDOW){
-        edgePrimedDir = -1;
-        edgePrimedAt = now;
-        hapticTick();
-        return;
-      }
-
-      // 第二次：快甩 或 拖得够远 就翻页
-      const FAST = Math.abs(vx) >= VELOCITY_TH;
-      const FAR  = absX >= FAR_X;
-
-      if(FAST || FAR){
-        edgePrimedDir = 0; edgePrimedAt = 0;
-        current++;
-        render();
-      }else{
-        // ✅ 没达到条件：保留 primed，让你再滑一下就行（更像相册）
-        edgePrimedAt = now;
-      }
-      return;
-    }
-
-    // 想去上一张：向右滑（dx>0）且在右边缘
-    if(absX > PAN_SWIPE_X && absX > absY && dx > 0 && atRightEdge && current > 0){
-      const now = Date.now();
-
-      if(edgePrimedDir !== 1 || (now - edgePrimedAt) > PRIME_WINDOW){
-        edgePrimedDir = 1;
-        edgePrimedAt = now;
-        hapticTick();
-        return;
-      }
-
-      const FAST = Math.abs(vx) >= VELOCITY_TH;
-      const FAR  = absX >= FAR_X;
-
-      if(FAST || FAR){
-        edgePrimedDir = 0; edgePrimedAt = 0;
-        current--;
-        render();
-      }else{
-        edgePrimedAt = now;
-      }
-      return;
-    }
-
-    // 其它情况：不翻页，清空准备
+  // ✅ 如果之前 primed 的方向不是“下一张”，先取消（避免来回滑很费劲）
+  if(edgePrimedDir === 1){
     edgePrimedDir = 0; edgePrimedAt = 0;
+  }
+
+  // 第一次：只准备（停一下 + 轻微震动）
+  if(edgePrimedDir !== -1 || (now - edgePrimedAt) > PRIME_WINDOW){
+    edgePrimedDir = -1;
+    edgePrimedAt = now;
+    hapticTick();
     return;
   }
+
+  // 第二次：快甩 / 拖远 / 或者滑到第二次门槛 就翻页
+  const FAST = Math.abs(vx) >= VELOCITY_TH;
+  const FAR  = absX >= FAR_X;
+  const SECOND_X = 45; // ✅ 新增：第二次不用很大距离
+
+  if(FAST || FAR || absX >= SECOND_X){
+    edgePrimedDir = 0; edgePrimedAt = 0;
+    current++;
+    render();
+  }else{
+    edgePrimedAt = now; // 继续保持 primed
+  }
+  return;
+}
+
+// 想去上一张：向右滑（dx>0）且在右边缘
+if(absX > PAN_SWIPE_X && absX > absY && dx > 0 && atRightEdge && current > 0){
+  const now = Date.now();
+
+  // ✅ 如果之前 primed 的方向不是“上一张”，先取消
+  if(edgePrimedDir === -1){
+    edgePrimedDir = 0; edgePrimedAt = 0;
+  }
+
+  if(edgePrimedDir !== 1 || (now - edgePrimedAt) > PRIME_WINDOW){
+    edgePrimedDir = 1;
+    edgePrimedAt = now;
+    hapticTick();
+    return;
+  }
+
+  const FAST = Math.abs(vx) >= VELOCITY_TH;
+  const FAR  = absX >= FAR_X;
+  const SECOND_X = 45; // ✅ 同样适用
+
+  if(FAST || FAR || absX >= SECOND_X){
+    edgePrimedDir = 0; edgePrimedAt = 0;
+    current--;
+    render();
+  }else{
+    edgePrimedAt = now;
+  }
+  return;
+}
+
+// 其它情况：不翻页，清空准备
+edgePrimedDir = 0; edgePrimedAt = 0;
+return;
+
 
   // ✅ 未放大：原来的 swipe
   if(!tracking) return;
