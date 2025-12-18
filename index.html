@@ -309,37 +309,44 @@
       .lb-ui{ top:10px; }
     }
     /* ✅ “两张图之间的缝隙”提示：只在 stage 上出现，不抖图片 */
+/* ✅ 缝隙光：只在左右边缘出现一条“窄缝”，不会铺在图片上 */
 .lb-stage::after{
   content:"";
   position:absolute;
-  inset:0;
-  pointer-events:none;
+  top:0;
+  bottom:0;
+
+  /* 关键：只做一条窄缝，而不是铺满 */
+  width:18px;                 /* 缝隙宽度，可调 12~24 */
   opacity:0;
-  transform:translateX(0);
+  pointer-events:none;
+
+  /* 不要影响图片：只画在边缘 */
   transition:opacity .14s ease, transform .14s ease;
 }
 
-/* 左边缘：出现一条“缝隙光” */
+/* 左边缘：缝隙在最左侧 */
 .lb-stage.edge-left::after{
+  left:0;
   opacity:1;
-  transform:translateX(-6px); /* ✅ 像相册那样“顶住” */
-  background:
-    linear-gradient(to left,
-      rgba(255,255,255,.20),
-      rgba(255,255,255,.10) 18%,
-      rgba(255,255,255,0) 45%);
+  transform:translateX(-6px); /* “顶住”的感觉 */
+ background:
+  linear-gradient(to right, rgba(0,0,0,.35), rgba(0,0,0,0) 55%),
+  linear-gradient(to right, rgba(255,255,255,.22), rgba(255,255,255,.10) 55%, rgba(255,255,255,0));
+
 }
 
-/* 右边缘：同理 */
+/* 右边缘：缝隙在最右侧 */
 .lb-stage.edge-right::after{
+  right:0;
   opacity:1;
   transform:translateX(6px);
   background:
-    linear-gradient(to right,
-      rgba(255,255,255,.20),
-      rgba(255,255,255,.10) 18%,
-      rgba(255,255,255,0) 45%);
+  linear-gradient(to left, rgba(0,0,0,.35), rgba(0,0,0,0) 55%),
+  linear-gradient(to left, rgba(255,255,255,.22), rgba(255,255,255,.10) 55%, rgba(255,255,255,0));
+
 }
+
 
   </style>
 </head>
